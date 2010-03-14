@@ -20,11 +20,14 @@ def safe_get url
 end
 
 class Player < GameObject
+	attr_reader :num
+	
 	def initialize name, color
-		super :width => 10, :height => 10
+		super :width => 20, :height => 20
 		@color = color
 		@name = name
 		@id = safe_get "add_player/?r=#{@color[0]}&g=#{@color[1]}&b=#{@color[2]}&name=#{@name}"
+		@num = safe_get("num/?id=#{@id}").to_i
 		@x = safe_get("x/?id=#{@id}").to_i
 		@y = safe_get("y/?id=#{@id}").to_i
 		
@@ -64,51 +67,56 @@ class Player < GameObject
 end
 
 class PlayerManager < GameObject
+	attr_reader :player
 	class NameText < Text
 		def initialize text, num, manager
 			super :text => text, :size => 12
 			@num = num
 			@manager = manager
+			center_x
+			@y = @@screen.height/2-@manager.player.width/2-20
 		end
 		
 		def update
-			unless @manager.players[@num] == nil
-				@x = @manager.players[@num][0]
-				@y = @manager.players[@num][1]-20
-			else
+			if @manager.players[@num] == nil
 				@life = 0
 			end
 		end
 	end
 	
-	def initialize
-		super
-		begin
-			pl = eval safe_get("list_players")
-			@players = pl if pl != nil
-			@players_inst = {}
-		rescue
-			puts "Fail"
-		end
+	def initialize player
+		super()
+		pl = eval safe_get("list_players")
+		@players = pl if pl != nil
+		@players_inst = {}
+		@player = player
+		@player_num = player.num
+		@adjusted = [0,0]
+	end
+	
+	def adjust
+		x = @players[@player_num][0]
+		y = @players[@player_num][1]
+		centered = [@@screen.width/2-@player.width/2,@@screen.height/2-@player.width/2]
+		adjusted = [centered[0]-x,centered[1]-y]
+		return adjusted
 	end
 	
 	def update
-		begin
-			pl = eval safe_get("list_players")
-			@players = pl if pl != nil
-			@players.each do |key,val|
-				if @players_inst[key] == nil
-					@players_inst[key] = NameText.new val[3], key, self
-				end
+		pl = eval safe_get("list_players")
+		@players = pl if pl != nil
+		@adjusted = adjust
+		@players.each do |key,val|
+			if @players_inst[key] == nil
+				@players_inst[key] = NameText.new val[3], key, self
 			end
-		rescue
-			puts "Fail"
 		end
 	end
 	
 	def draw
-		@players.each_value do |x,y,color,name|
-			@@screen.draw_box_s([x,y],[x+20,y+20], color)
+		@players.each do |key,val|
+			x,y,color,name = val
+			@@screen.draw_box_s([x+@adjusted[0],y+@adjusted[1]],[x+20+@adjusted[0],y+20+@adjusted[1]], color)	
 		end
 	end
 	
@@ -125,8 +133,8 @@ class InGame < State
 	end
 	
 	def setup
-		PlayerManager.new
-		Player.new @name, @color
+		player = Player.new @name, @color
+		PlayerManager.new player
 		key_release(:u) do
 			game = safe_get("update/game")
 			server = safe_get("update/server")
@@ -302,5 +310,9 @@ game = Game.new
 game.event(QuitRequested) do
 	exit
 end
-game.switch_state Setup.new
+if ARGV[0] == "--skip"
+	game.switch_state InGame.new "Tyler", [255,255,255]
+else
+	game.switch_state Setup.new
+end
 game.run

@@ -19,6 +19,10 @@ get '/add_player/?' do
 	id
 end
 
+get '/num/?' do
+	$ids[params[:id]][:num].to_s
+end
+
 get '/alive/?' do
 	$ids[params[:id]][:last_conn] = Time.now
 end
