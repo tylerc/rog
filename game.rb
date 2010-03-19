@@ -69,46 +69,39 @@ end
 class PlayerManager < GameObject
 	attr_reader :player
 	class NameText < Text
-		def initialize text, num, manager
+		def initialize text, num, manager, room
 			super :text => text, :size => 12
 			@num = num
 			@manager = manager
-			center_x
-			@y = @@screen.height/2-@manager.player.width/2-20
+			@room = room
 		end
 		
 		def update
-			if @manager.players[@num] == nil
+			unless @manager.players[@num] == nil
+				@x = @manager.players[@num][0]+@room.x
+				@y = @manager.players[@num][1]-20+@room.y
+			else
 				@life = 0
 			end
 		end
 	end
 	
-	def initialize player
+	def initialize player, room
 		super()
 		pl = eval safe_get("list_players")
 		@players = pl if pl != nil
 		@players_inst = {}
 		@player = player
 		@player_num = player.num
-		@adjusted = [0,0]
-	end
-	
-	def adjust
-		x = @players[@player_num][0]
-		y = @players[@player_num][1]
-		centered = [@@screen.width/2-@player.width/2,@@screen.height/2-@player.width/2]
-		adjusted = [centered[0]-x,centered[1]-y]
-		return adjusted
+		@room = room
 	end
 	
 	def update
 		pl = eval safe_get("list_players")
 		@players = pl if pl != nil
-		@adjusted = adjust
 		@players.each do |key,val|
 			if @players_inst[key] == nil
-				@players_inst[key] = NameText.new val[3], key, self
+				@players_inst[key] = NameText.new val[3], key, self, @room
 			end
 		end
 	end
@@ -116,12 +109,25 @@ class PlayerManager < GameObject
 	def draw
 		@players.each do |key,val|
 			x,y,color,name = val
-			@@screen.draw_box_s([x+@adjusted[0],y+@adjusted[1]],[x+20+@adjusted[0],y+20+@adjusted[1]], color)	
+			#@@screen.draw_box_s([x+@adjusted[0],y+@adjusted[1]],[x+20+@adjusted[0],y+20+@adjusted[1]], color)
+			#@@screen.draw_box_s([x,y],[x+20,y+20], color)
+			@@screen.draw_box_s([x+@room.x,y+@room.y],[x+@room.x+20,y+@room.y+20], color)
 		end
 	end
 	
 	def players
 		@players
+	end
+end
+
+class Room < Drawable
+	def initialize player
+		@id = player.id
+		@player = player
+		surface = Rubygame::Surface.new [320,320]
+		surface.draw_box([0,0],[surface.width-2,surface.height-2],[255,255,255])
+		super(:surface => surface, :depth => -1)
+		center
 	end
 end
 
@@ -134,7 +140,8 @@ class InGame < State
 	
 	def setup
 		player = Player.new @name, @color
-		PlayerManager.new player
+		room = Room.new player
+		manager = PlayerManager.new player, room
 		key_release(:u) do
 			game = safe_get("update/game")
 			server = safe_get("update/server")
