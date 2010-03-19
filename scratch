@@ -1,0 +1,7 @@
+def adjust
+	x = @players[@player_num][0]
+	y = @players[@player_num][1]
+	centered = [@@screen.width/2-@player.width/2,@@screen.height/2-@player.width/2]
+	adjusted = [centered[0]-x,centered[1]-y]
+	return adjusted
+end
