@@ -124,7 +124,8 @@ class Room < Drawable
 	def initialize player
 		@id = player.id
 		@player = player
-		surface = Rubygame::Surface.new [320,320]
+		@room = eval safe_get("room?id=#{@id}")
+		surface = Rubygame::Surface.new [@room[:width],@room[:height]]
 		surface.draw_box([0,0],[surface.width-2,surface.height-2],[255,255,255])
 		super(:surface => surface, :depth => -1)
 		center

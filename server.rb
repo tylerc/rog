@@ -5,7 +5,14 @@ require 'digest/sha1'
 $salt = rand
 $ids = {}
 $num = 0
-$rooms = {0 => {:width => 320, :height => 320}}
+$rooms = {
+		0 => {	:width => 400, 
+				:height => 320, 
+				:doors => { [100,0,200,0] => 1} },
+		1 => {	:width => 320,
+				:height => 320,
+				:doors => { [100,320,200,320] => 0 } },
+		}
 $player_width = 20
 $player_height = 20
 
@@ -36,8 +43,8 @@ end
 
 get '/add_player/?' do
 	id = Digest::SHA1.hexdigest(($num + $salt).to_s)
-	$ids[id] = {:x => rand(280),
-				:y => rand(280),
+	$ids[id] = {:x => rand($rooms[0][:width]-40),
+				:y => rand($rooms[0][:height]-40),
 				:color => [@r.to_i,@g.to_i,@b.to_i],
 				:last_conn => Time.now,
 				:name => @name,
@@ -100,6 +107,10 @@ get '/set_y/:y' do
 		@player[:y] = $rooms[room][:height]-$player_height if @y.to_i > $rooms[room][:height]-$player_height
 		return @player[:y].to_s
 	end
+end
+
+get '/room/?' do
+	return $rooms[@player[:room]].to_s
 end
 
 get '/update/game' do
