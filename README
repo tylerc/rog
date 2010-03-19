@@ -1,0 +1,118 @@
+ROG - A simple networked dungeon crawler
+========================================
+
+ROG is currently in a pre-alpha stage, and isn't ready for real
+players yet, only developers.
+
+Requirements
+------------
+
+(ROG may work with different or older versions, but these are what it
+is being developed and tested on)
+
+Ruby 1.9.1 (http://ruby-lang.org/)
+Rubygame 2.6.2 (http://rubygame.org/)
+HTTParty 0.5.2 (http://httparty.rubyforge.org/)
+Sinatra 0.9.6 (http://sinatrarb.com/)
+Thin 1.2.7 (http://code.macournoyer.com/thin/)
+
+Playing
+-------
+
+### Starting the Server ###
+
+    ruby server.rb
+
+### Running the Game ###
+
+    ruby game.rb
+
+If you're a developer, and want to skip the player creation screen,
+run the game with this command:
+    
+    ruby game.rb [--skip] 
+
+### Controls ###
+
+Arrow keys - Movement
+
+### This game sucks! There's nothing to do! ###
+
+Of course it sucks! This game is "pre-alpha", meaning it's nowhere
+near complete yet. We're trying hard to get this to a truely playable
+state, but it takes time. Impatient? You can jump in and help speed
+things along! See the "Contributing" section below.
+
+Developer Documentation
+-----------------------
+
+### Files ###
+
+Everything *should* be pretty obviously named, but here's the current
+file listing for clarification:
+
+     game.rb - The game client is here
+     engine.rb - The game engine, very home made, mostly solid but it
+     	       	 still has some rough edges
+     server.rb - This is where the server code lives
+     FreeSans.ttf - Our font file, this may change later
+     scratch - This file is for code that we may want to keep for
+     	       later, but it didn't get commited, or was removed at
+     	       some point.
+
+### Game Design ###
+
+Keep it simple! We want this to be simple and fun for both players
+and developers.
+
+It's designed to be run on a local network, so no dedicated servers,
+and no playing with people accross the world.
+
+Some actual design documents *may* be going online soon, but as this
+is still pre-alpha, we don't want to get too carried away with design
+before we get some more of the base implementation done.
+
+### Contributing ###
+
+We're on github (http://github.com/tylerc/rog) so please just fork us
+and get hacking. Get hacking on what, you ask? Many things!:
+
+    * Fix bugs in the issue tracker
+      (http://github.com/tylerc/rog/issues)
+    * Write documentation
+    * Implement the design docs (when they're finally put up)
+    * Scratch your own itch!
+
+When you want us to integrate your changes, just send
+us a pull request via github.
+
+Contributors
+------------
+
+Tyler Church
+Nickolas Fernando
+Michael Jerrick
+
+License
+-------
+
+Copyright © 2010 Tyler Church
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must
+not claim that you wrote the original software. If you use this
+software in a product, an acknowledgement in the product documentation
+would be appreciated but is not required.
+
+2. Altered source versions must be plainly marked as such, and must
+not be misrepresented as being the original software.
+
+3. This notice may not be removed or altered from any source
+distribution.
