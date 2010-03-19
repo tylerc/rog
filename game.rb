@@ -8,6 +8,7 @@ include Rubygame::Events
 #$ip = "10.240.2.67:4567"
 $ip = "localhost:4567"
 #$ip = "localhost:9393"
+$id = ""
 
 def safe_get url
 	begin
@@ -22,47 +23,51 @@ end
 class Player < GameObject
 	attr_reader :num, :id
 	
-	def initialize name, color
+	def initialize name, color, room
 		super :width => 20, :height => 20
-		@color = color
-		@name = name
-		@id = safe_get "add_player/?r=#{@color[0]}&g=#{@color[1]}&b=#{@color[2]}&name=#{@name}"
-		@num = safe_get("num/?id=#{@id}").to_i
-		@x = safe_get("x/?id=#{@id}").to_i
-		@y = safe_get("y/?id=#{@id}").to_i
+		@num = safe_get("num/?id=#{$id}").to_i
+		@sx = safe_get("x/?id=#{$id}").to_i
+		@sy = safe_get("y/?id=#{$id}").to_i
+		@room = room
 		
 		while_key_pressed(:down) do
-			@y += 5
+			@sy += 5
 			update_y
 		end
 		while_key_pressed(:up) do
-			@y -= 5
+			@sy -= 5
 			update_y
 		end
 		while_key_pressed(:right) do
-			@x += 5
+			@sx += 5
 			update_x
 		end
 		while_key_pressed(:left) do
-			@x -= 5
+			@sx -= 5
 			update_x
 		end
 	end
 	
 	def update_x
-		@x = safe_get("set_x/#{@x}?id=#{@id}").to_i
+		@sx = safe_get("set_x/#{@sx}?id=#{$id}").to_i
+		@x = @sx+@room.x
 	end
 	
 	def update_y
-		@y = safe_get("set_y/#{@y}?id=#{@id}").to_i
+		@sy = safe_get("set_y/#{@sy}?id=#{$id}").to_i
+		@y = @sy+@room.y
 	end
 	
 	def update
-		safe_get "alive/?id=#{@id}"
-		#x = safe_get("x/?id=#{@id}").to_i
-		#y = safe_get("y/?id=#{@id}").to_i
+		safe_get "alive/?id=#{$id}"
+		#x = safe_get("x/?id=#{$id}").to_i
+		#y = safe_get("y/?id=#{$id}").to_i
 		#@x = x unless x == nil
 		#@y = y unless y == nil
+	end
+	
+	def draw
+		#@@screen.draw_box([@x,@y],[@x+@width,@y+@height],[0,255,0])
 	end
 end
 
@@ -121,14 +126,45 @@ class PlayerManager < GameObject
 end
 
 class Room < Drawable
-	def initialize player
-		@id = player.id
-		@player = player
-		@room = eval safe_get("room?id=#{@id}")
-		surface = Rubygame::Surface.new [@room[:width],@room[:height]]
-		surface.draw_box([0,0],[surface.width-2,surface.height-2],[255,255,255])
-		super(:surface => surface, :depth => -1)
+
+	class Door < Drawable
+		def initialize rect, to, room
+			@rect = rect
+			@to = to
+			@room = room
+			surface = Rubygame::Surface.new [@rect[2]-@rect[0],@rect[3]-@rect[1]]
+			surface.fill [255,0,0]
+			super :surface => surface, :x => @rect[0]+@room.x, :y => @rect[1]+@room.y
+		end
+		
+		def draw
+			@surface.blit @@screen, [@x,@y]
+		end
+		
+		def collision obj
+			if obj.class == Player
+				safe_get "change_room/#{@to}?id=#{$id}"
+				@room.change
+				@life = 0
+			end
+		end
+	end
+	
+	def initialize	
+		super(:depth => -1)
+		change
+	end
+	
+	def change
+		@room = eval safe_get("room?id=#{$id}")
+		@width = @room[:width]
+		@height = @room[:height]
 		center
+		@surface = Rubygame::Surface.new [@width,@height]
+		@surface.draw_box([0,0],[surface.width-2,surface.height-2],[255,255,255])
+		@room[:doors].each do |rect, to|
+			Door.new rect, to, self
+		end
 	end
 end
 
@@ -140,8 +176,9 @@ class InGame < State
 	end
 	
 	def setup
-		player = Player.new @name, @color
-		room = Room.new player
+		$id = safe_get "add_player/?r=#{@color[0]}&g=#{@color[1]}&b=#{@color[2]}&name=#{@name}"
+		room = Room.new
+		player = Player.new @name, @color, room
 		manager = PlayerManager.new player, room
 		key_release(:u) do
 			game = safe_get("update/game")
