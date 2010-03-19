@@ -20,7 +20,7 @@ def safe_get url
 end
 
 class Player < GameObject
-	attr_reader :num
+	attr_reader :num, :id
 	
 	def initialize name, color
 		super :width => 20, :height => 20
