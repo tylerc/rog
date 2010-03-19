@@ -59,43 +59,44 @@ get '*/?' do
 	if @id == nil
 		return "No id"
 	else
+		@player = $ids[@id]
 		pass
 	end
 end
 
 get '/num/?' do
-	$ids[@id][:num].to_s
+	@player[:num].to_s
 end
 
 get '/alive/?' do
-	$ids[@id][:last_conn] = Time.now
+	@player[:last_conn] = Time.now
 end
 
 get '/x/?' do
-	$ids[@id][:x].to_s
+	@player[:x].to_s
 end
 
 get '/y/?' do
-	$ids[@id][:y].to_s
+	@player[:y].to_s
 end
 
 get '/set_x/:x' do
 	unless @x == nil
-		$ids[@id][:x] = @x.to_i
-		$ids[@id][:x] = 0 if @x.to_i < 0
-		room = $ids[@id][:room]
-		$ids[@id][:x] = $rooms[room][:width]-$player_width if @x.to_i > $rooms[room][:width]-$player_width
-		return $ids[@id][:x].to_s
+		@player[:x] = @x.to_i
+		@player[:x] = 0 if @x.to_i < 0
+		room = @player[:room]
+		@player[:x] = $rooms[room][:width]-$player_width if @x.to_i > $rooms[room][:width]-$player_width
+		return @player[:x].to_s
 	end
 end
 
 get '/set_y/:y' do
 	unless @y == nil
-		$ids[@id][:y] = @y.to_i
-		$ids[@id][:y] = 0 if @y.to_i < 0
-		room = $ids[@id][:room]
-		$ids[@id][:y] = $rooms[room][:height]-$player_height if @y.to_i > $rooms[room][:height]-$player_height
-		return $ids[@id][:y].to_s
+		@player[:y] = @y.to_i
+		@player[:y] = 0 if @y.to_i < 0
+		room = @player[:room]
+		@player[:y] = $rooms[room][:height]-$player_height if @y.to_i > $rooms[room][:height]-$player_height
+		return @player[:y].to_s
 	end
 end
 
