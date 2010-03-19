@@ -113,6 +113,13 @@ get '/room/?' do
 	return $rooms[@player[:room]].to_s
 end
 
+get '/change_room/:room/?' do
+	@room = params[:room]
+	unless params[:room] == nil
+		@player[:room] = @room.to_i
+	end
+end
+
 get '/update/game' do
 	File.read("game.rb")
 end
