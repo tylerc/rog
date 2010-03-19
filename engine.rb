@@ -334,8 +334,10 @@ module Engine
 		# * Angle (:rot_angle)
 		# * Zoom (:zoom)
 		# * Anti-Alias (:aa)
-		def initialize settings={:width => 20, :height => 20, :angle => 0, :zoom => 1, :aa => true, :surface => Rubygame::Surface.new([20,20])}
-			s = 		{:width => 20, :height => 20, :angle => 0, :zoom => 1, :aa => true, :surface => Rubygame::Surface.new([20,20])}.merge!(settings)
+		def initialize settings={:angle => 0, :zoom => 1, :aa => true, :surface => Rubygame::Surface.new([20,20])}
+			s = 				{:angle => 0, :zoom => 1, :aa => true, :surface => Rubygame::Surface.new([20,20])}.merge!(settings)
+			s[:width] ||= s[:surface].width
+			s[:height] ||= s[:surface].height
 			super s
 			Util.hash_to_var(s, [:surface, :zoom, :aa, :angle], self)
 			@surface = @surface.to_display_alpha
