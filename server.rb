@@ -81,6 +81,7 @@ get '/y/?' do
 end
 
 get '/set_x/:x' do
+	@x = params[:x]
 	unless @x == nil
 		@player[:x] = @x.to_i
 		@player[:x] = 0 if @x.to_i < 0
@@ -91,6 +92,7 @@ get '/set_x/:x' do
 end
 
 get '/set_y/:y' do
+	@y = params[:y]
 	unless @y == nil
 		@player[:y] = @y.to_i
 		@player[:y] = 0 if @y.to_i < 0
