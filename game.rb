@@ -50,11 +50,11 @@ class Player < GameObject
 	end
 	
 	def update_x
-		safe_get "set_x/#{@x}?id=#{@id}"
+		@x = safe_get("set_x/#{@x}?id=#{@id}").to_i
 	end
 	
 	def update_y
-		safe_get "set_y/#{@y}?id=#{@id}"
+		@y = safe_get("set_y/#{@y}?id=#{@id}").to_i
 	end
 	
 	def update
