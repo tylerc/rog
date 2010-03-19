@@ -12,11 +12,28 @@ helpers do
 	end
 end
 
+get '/list_players' do
+	cleanup_timeouts
+	hash = {}
+	$ids.each_value do |val|
+		hash[val[:num]] = [val[:x], val[:y], val[:color], val[:name]]
+	end
+	hash.to_s
+end
+
 get '/add_player/?' do
 	id = Digest::SHA1.hexdigest(($num + $salt).to_s)
-	$ids[id] = {:x => rand(640), :y => rand(480), :color => [params[:r].to_i,params[:g].to_i,params[:b].to_i], :last_conn => Time.now, :name => params[:name], :num => $num}
+	$ids[id] = {:x => rand(280), :y => rand(280), :color => [params[:r].to_i,params[:g].to_i,params[:b].to_i], :last_conn => Time.now, :name => params[:name], :num => $num}
 	$num += 1
 	id
+end
+
+get '*/?' do
+	if params[:id] == nil
+		return "No id"
+	else
+		pass
+	end
 end
 
 get '/num/?' do
@@ -35,32 +52,17 @@ get '/y/?' do
 	$ids[params[:id]][:y].to_s
 end
 
-get '/list_players' do
-	cleanup_timeouts
-	hash = {}
-	$ids.each_value do |val|
-		hash[val[:num]] = [val[:x], val[:y], val[:color], val[:name]]
-	end
-	hash.to_s
-end	
-
 get '/set_x/:x' do
-	if params[:id] == nil
-		return "No id"
-	else
-		unless params[:x] == nil
-			$ids[params[:id]][:x] = params[:x].to_i
-		end
+	unless params[:x] == nil
+		$ids[params[:id]][:x] = params[:x].to_i
+		return $ids[params[:id]][:x].to_s
 	end
 end
 
 get '/set_y/:y' do
-	if params[:id] == nil
-		return "No id"
-	else
-		unless params[:y] == nil
-			$ids[params[:id]][:y] = params[:y].to_i
-		end
+	unless params[:y] == nil
+		$ids[params[:id]][:y] = params[:y].to_i
+		return $ids[params[:id]][:y].to_s
 	end
 end
 
