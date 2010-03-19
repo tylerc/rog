@@ -30,7 +30,7 @@ Playing
 If you're a developer, and want to skip the player creation screen,
 run the game with this command:
     
-    ruby game.rb [--skip] 
+    ruby game.rb --skip
 
 ### Controls ###
 
