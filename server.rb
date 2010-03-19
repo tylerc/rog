@@ -13,6 +13,16 @@ helpers do
 	def cleanup_timeouts
 		$ids.delete_if { |id,val| Time.now - val[:last_conn] > 5  }
 	end
+	
+	def transform_params params
+		params.each do |param|
+			instance_variable_set("@" + param[0],param[1])
+		end
+	end
+end
+
+before do
+	transform_params params
 end
 
 get '/list_players' do
@@ -26,13 +36,27 @@ end
 
 get '/add_player/?' do
 	id = Digest::SHA1.hexdigest(($num + $salt).to_s)
-	$ids[id] = {:x => rand(280), :y => rand(280), :color => [params[:r].to_i,params[:g].to_i,params[:b].to_i], :last_conn => Time.now, :name => params[:name], :num => $num, :room => 0}
+	$ids[id] = {:x => rand(280),
+				:y => rand(280),
+				:color => [@r.to_i,@g.to_i,@b.to_i],
+				:last_conn => Time.now,
+				:name => @name,
+				:num => $num,
+				:room => 0}
 	$num += 1
 	id
 end
 
+get '/list_ids/?' do
+  if @pass == "awesome"
+  	$ids.keys.join "<br/>\n"
+  else
+  	redirect "/404"
+  end
+end
+
 get '*/?' do
-	if params[:id] == nil
+	if @id == nil
 		return "No id"
 	else
 		pass
@@ -40,47 +64,39 @@ get '*/?' do
 end
 
 get '/num/?' do
-	$ids[params[:id]][:num].to_s
+	$ids[@id][:num].to_s
 end
 
 get '/alive/?' do
-	$ids[params[:id]][:last_conn] = Time.now
+	$ids[@id][:last_conn] = Time.now
 end
 
 get '/x/?' do
-	$ids[params[:id]][:x].to_s
+	$ids[@id][:x].to_s
 end
 
 get '/y/?' do
-	$ids[params[:id]][:y].to_s
+	$ids[@id][:y].to_s
 end
 
 get '/set_x/:x' do
-	unless params[:x] == nil
-		$ids[params[:id]][:x] = params[:x].to_i
-		$ids[params[:id]][:x] = 0 if params[:x].to_i < 0
-		room = $ids[params[:id]][:room]
-		$ids[params[:id]][:x] = $rooms[room][:width]-$player_width if params[:x].to_i > $rooms[room][:width]-$player_width
-		return $ids[params[:id]][:x].to_s
+	unless @x == nil
+		$ids[@id][:x] = @x.to_i
+		$ids[@id][:x] = 0 if @x.to_i < 0
+		room = $ids[@id][:room]
+		$ids[@id][:x] = $rooms[room][:width]-$player_width if @x.to_i > $rooms[room][:width]-$player_width
+		return $ids[@id][:x].to_s
 	end
 end
 
 get '/set_y/:y' do
-	unless params[:y] == nil
-		$ids[params[:id]][:y] = params[:y].to_i
-		$ids[params[:id]][:y] = 0 if params[:y].to_i < 0
-		room = $ids[params[:id]][:room]
-		$ids[params[:id]][:y] = $rooms[room][:height]-$player_height if params[:y].to_i > $rooms[room][:height]-$player_height
-		return $ids[params[:id]][:y].to_s
+	unless @y == nil
+		$ids[@id][:y] = @y.to_i
+		$ids[@id][:y] = 0 if @y.to_i < 0
+		room = $ids[@id][:room]
+		$ids[@id][:y] = $rooms[room][:height]-$player_height if @y.to_i > $rooms[room][:height]-$player_height
+		return $ids[@id][:y].to_s
 	end
-end
-
-get '/list_ids/?' do
-  if params[:pass] == "awesome"
-  	$ids.keys.join "<br/>\n"
-  else
-  	redirect "/404"
-  end
 end
 
 get '/update/game' do
