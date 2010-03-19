@@ -21,7 +21,8 @@ def safe_get url
 end
 
 class Player < GameObject
-	attr_reader :num, :id
+	attr_reader :num
+	attr_accessor :sx, :sy
 	
 	def initialize name, color, room
 		super :width => 20, :height => 20
@@ -143,7 +144,11 @@ class Room < Drawable
 		
 		def collision obj
 			if obj.class == Player
-				safe_get "change_room/#{@to}?id=#{$id}"
+				safe_get "change_room/#{@to[0]}?id=#{$id}"
+				obj.sx = @to[1][0]
+				obj.sy = @to[1][1]
+				obj.update_x
+				obj.update_y
 				@room.change
 				@life = 0
 			end
