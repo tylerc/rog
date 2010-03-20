@@ -2,17 +2,12 @@ require 'rubygems'
 require 'sinatra'
 require 'digest/sha1'
 
+require 'room'
+
 $salt = rand
 $ids = {}
 $num = 0
-$rooms = {
-		0 => {	:width => 400, 
-				:height => 320, 
-				:doors => { 1 => [[100,0,200,2],[150,290]] } },
-		1 => {	:width => 320,
-				:height => 320,
-				:doors => { 0 => [[100,318,200,320],[150, 10]] } },
-		}
+$rooms = create_dungeon
 $player_width = 20
 $player_height = 20
 

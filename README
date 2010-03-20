@@ -55,6 +55,7 @@ file listing for clarification:
      engine.rb - The game engine, very home made, mostly solid but it
      	       	 still has some rough edges
      server.rb - This is where the server code lives
+     dungeon.rb - Contains the dungeon generation code
      FreeSans.ttf - Our font file, this may change later
      scratch - This file is for code that we may want to keep for
      	       later, but it didn't get commited, or was removed at
