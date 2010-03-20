@@ -8,8 +8,6 @@ $salt = rand
 $ids = {}
 $num = 0
 $rooms = create_dungeon
-$player_width = 20
-$player_height = 20
 
 helpers do
 	def cleanup_timeouts
@@ -35,7 +33,10 @@ get '/add_player/?' do
 				:last_conn => Time.now,
 				:name => @name,
 				:num => $num,
-				:room => 0}
+				:room => 0,
+				:width => 20,
+				:height => 20,
+				}
 	$num += 1
 	id
 end
@@ -88,7 +89,7 @@ get '/set_x/:x' do
 		@player[:x] = @x.to_i
 		@player[:x] = 0 if @x.to_i < 0
 		room = @player[:room]
-		@player[:x] = $rooms[room][:width]-$player_width if @x.to_i > $rooms[room][:width]-$player_width
+		@player[:x] = $rooms[room][:width]-@player[:width] if @x.to_i > $rooms[room][:width]-@player[:width]
 		return @player[:x].to_s
 	end
 end
@@ -99,7 +100,7 @@ get '/set_y/:y' do
 		@player[:y] = @y.to_i
 		@player[:y] = 0 if @y.to_i < 0
 		room = @player[:room]
-		@player[:y] = $rooms[room][:height]-$player_height if @y.to_i > $rooms[room][:height]-$player_height
+		@player[:y] = $rooms[room][:height]-@player[:height] if @y.to_i > $rooms[room][:height]-@player[:height]
 		return @player[:y].to_s
 	end
 end
