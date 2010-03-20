@@ -129,8 +129,9 @@ end
 class Room < Drawable
 
 	class Door < Drawable
-		def initialize rect, to, room
-			@rect = rect
+		def initialize pos, to, room
+			@rect = pos[0]
+			@player_pos = pos[1]
 			@to = to
 			@room = room
 			surface = Rubygame::Surface.new [@rect[2]-@rect[0],@rect[3]-@rect[1]]
@@ -144,9 +145,9 @@ class Room < Drawable
 		
 		def collision obj
 			if obj.class == Player
-				safe_get "change_room/#{@to[0]}?id=#{$id}"
-				obj.sx = @to[1][0]
-				obj.sy = @to[1][1]
+				safe_get "change_room/#{@to}?id=#{$id}"
+				obj.sx = @player_pos[0]
+				obj.sy = @player_pos[1]
 				obj.update_x
 				obj.update_y
 				@room.change
@@ -167,8 +168,8 @@ class Room < Drawable
 		center
 		@surface = Rubygame::Surface.new [@width,@height]
 		@surface.draw_box([0,0],[surface.width-2,surface.height-2],[255,255,255])
-		@room[:doors].each do |rect, to|
-			Door.new rect, to, self
+		@room[:doors].each do |to, pos|
+			Door.new pos, to, self
 		end
 	end
 end
