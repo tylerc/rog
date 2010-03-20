@@ -84,7 +84,7 @@ class PlayerManager < GameObject
 		
 		def update
 			unless @manager.players[@num] == nil
-				@x = @manager.players[@num][0]+@room.x
+				@x = @manager.players[@num][0]+10-@width/2+@room.x
 				@y = @manager.players[@num][1]-20+@room.y
 			else
 				@life = 0
