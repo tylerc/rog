@@ -118,6 +118,7 @@ end
 get '/change_room/:room/?' do
 	@room = params[:room]
 	unless params[:room] == nil
+		@player[:x], @player[:y] = $rooms[@player[:room]][:doors][@room.to_i][1]
 		@player[:room] = @room.to_i
 	end
 end
