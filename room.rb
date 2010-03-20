@@ -60,7 +60,14 @@ class Rooms
 				room1[:doors][room2[:num]] = [door1,spawn1]
 				room2[:doors][room1[:num]] = [door2,spawn2]
 			when :right
-			
+				y = rand(room1[:height]-100)
+				y2 = rand(room2[:height]-100)
+				door1 = [room1[:width]-2,y,room1[:width],y+100]
+				door2 = [0,y2,2,y2+100]
+				spawn1 = [10,door2[1]+50-10]
+				spawn2 = [room1[:width]-30,door1[1]+50-10]
+				room1[:doors][room2[:num]] = [door1,spawn1]
+				room2[:doors][room1[:num]] = [door2,spawn2]
 			when :bottom
 				x = rand(room1[:width]-100)
 				x2 = rand(room2[:width]-100)
@@ -71,6 +78,14 @@ class Rooms
 				room1[:doors][room2[:num]] = [door1,spawn1]
 				room2[:doors][room1[:num]] = [door2,spawn2]
 			when :left
+				y = rand(room1[:height]-100)
+				y2 = rand(room2[:height]-100)
+				door1 = [0,y,2,y+100]
+				door2 = [room2[:width]-2,y2,room2[:width],y2+100]
+				spawn1 = [room2[:width]-30,door2[1]+50-10]
+				spawn2 = [10,door1[1]+50-10]
+				room1[:doors][room2[:num]] = [door1,spawn1]
+				room2[:doors][room1[:num]] = [door2,spawn2]
 		end
 	end
 	
@@ -84,7 +99,7 @@ def create_dungeon
 	20.times do |i|
 		dungeon.create_room
 		if i != 0
-			dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1], :bottom)
+			dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1], :right)
 		end
 	end
 	dungeon.export
