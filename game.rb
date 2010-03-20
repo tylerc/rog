@@ -151,7 +151,7 @@ class Room < Drawable
 				obj.update_x
 				obj.update_y
 				@room.change
-				@life = 0
+				@@game.current_state.objs.delete_if { |obj| obj.class == Door }
 			end
 		end
 	end
