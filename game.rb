@@ -182,7 +182,7 @@ class InGame < State
 	end
 	
 	def setup
-		$id = safe_get "add_player/?r=#{@color[0]}&g=#{@color[1]}&b=#{@color[2]}&name=#{@name}"
+		$id = safe_get "add_player/?r=#{@color[0]}&g=#{@color[1]}&b=#{@color[2]}&name=#{@name.gsub(' ', '+')}"
 		room = Room.new
 		player = Player.new @name, @color, room
 		manager = PlayerManager.new player, room
