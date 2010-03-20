@@ -111,10 +111,18 @@ end
 
 def create_dungeon
 	dungeon = Rooms.new
+	# Create initial branch
 	20.times do |i|
 		dungeon.create_room
 		if i != 0
 			dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
+		end
+	end
+	# Walk initial branch, add offshoots
+	20.times do |i|
+		if rand(3) == 0
+			room = dungeon.create_room
+			dungeon.add_connection(dungeon.rooms[i], room)
 		end
 	end
 	dungeon.export
