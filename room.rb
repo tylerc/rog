@@ -39,6 +39,7 @@ class Rooms
 			:width => width,
 			:height => height,
 			:doors => {},
+			:has_doors_on => [],
 			:num => @num,
 		}
 		@num += 1
@@ -47,7 +48,13 @@ class Rooms
 	
 	def add_connection room1, room2, side=nil
 		# Pick side
-		side ||= {0 => :top, 1 => :right, 2 => :bottom, 3 => :left}[rand(4)]
+		if side == nil
+			sides = [:top, :right, :bottom, :left]
+			room1[:has_doors_on].each do |part|
+				sides.delete_if { |value| value == part }
+			end
+			side = sides[rand(sides.length)]
+		end
 		
 		case side
 			when :top
@@ -58,7 +65,9 @@ class Rooms
 				spawn1 = [door2[0]+50-10,room2[:height]-30]
 				spawn2 = [door1[0]+50-10,10]
 				room1[:doors][room2[:num]] = [door1,spawn1]
+				room1[:has_doors_on] += [:top]
 				room2[:doors][room1[:num]] = [door2,spawn2]
+				room2[:has_doors_on] += [:bottom]
 			when :right
 				y = rand(room1[:height]-100)
 				y2 = rand(room2[:height]-100)
@@ -67,7 +76,9 @@ class Rooms
 				spawn1 = [10,door2[1]+50-10]
 				spawn2 = [room1[:width]-30,door1[1]+50-10]
 				room1[:doors][room2[:num]] = [door1,spawn1]
+				room1[:has_doors_on] += [:right]
 				room2[:doors][room1[:num]] = [door2,spawn2]
+				room2[:has_doors_on] += [:left]
 			when :bottom
 				x = rand(room1[:width]-100)
 				x2 = rand(room2[:width]-100)
@@ -76,7 +87,9 @@ class Rooms
 				spawn1 = [door2[0]+50-10,10]
 				spawn2 = [door1[0]+50-10,room1[:height]-30]
 				room1[:doors][room2[:num]] = [door1,spawn1]
+				room1[:has_doors_on] += [:bottom]
 				room2[:doors][room1[:num]] = [door2,spawn2]
+				room2[:has_doors_on] += [:top]
 			when :left
 				y = rand(room1[:height]-100)
 				y2 = rand(room2[:height]-100)
@@ -85,7 +98,9 @@ class Rooms
 				spawn1 = [room2[:width]-30,door2[1]+50-10]
 				spawn2 = [10,door1[1]+50-10]
 				room1[:doors][room2[:num]] = [door1,spawn1]
+				room1[:has_doors_on] += [:left]
 				room2[:doors][room1[:num]] = [door2,spawn2]
+				room2[:has_doors_on] += [:right]
 		end
 	end
 	
@@ -99,7 +114,7 @@ def create_dungeon
 	20.times do |i|
 		dungeon.create_room
 		if i != 0
-			dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1], :right)
+			dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
 		end
 	end
 	dungeon.export
