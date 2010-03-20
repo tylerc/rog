@@ -94,7 +94,7 @@ class PlayerManager < GameObject
 	
 	def initialize player, room
 		super()
-		pl = eval safe_get("list_players")
+		pl = eval safe_get("list_players?id=#{$id}")
 		@players = pl if pl != nil
 		@players_inst = {}
 		@player = player
@@ -103,7 +103,7 @@ class PlayerManager < GameObject
 	end
 	
 	def update
-		pl = eval safe_get("list_players")
+		pl = eval safe_get("list_players?id=#{$id}")
 		@players = pl if pl != nil
 		@players.each do |key,val|
 			if @players_inst[key] == nil

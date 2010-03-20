@@ -32,15 +32,6 @@ before do
 	transform_params params
 end
 
-get '/list_players' do
-	cleanup_timeouts
-	hash = {}
-	$ids.each_value do |val|
-		hash[val[:num]] = [val[:x], val[:y], val[:color], val[:name]]
-	end
-	hash.to_s
-end
-
 get '/add_player/?' do
 	id = Digest::SHA1.hexdigest(($num + $salt).to_s)
 	$ids[id] = {:x => rand($rooms[0][:width]-40),
@@ -69,6 +60,15 @@ get '*/?' do
 		@player = $ids[@id]
 		pass
 	end
+end
+
+get '/list_players/?' do
+	cleanup_timeouts
+	hash = {}
+	$ids.each_value do |val|
+		hash[val[:num]] = [val[:x], val[:y], val[:color], val[:name]] unless @player[:room] != val[:room]
+	end
+	hash.to_s
 end
 
 get '/num/?' do
