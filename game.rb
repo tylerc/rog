@@ -26,10 +26,12 @@ class Player < GameObject
 	
 	def initialize name, color, room
 		super :width => 20, :height => 20
+		@room = room
 		@num = safe_get("num/?id=#{$id}").to_i
 		@sx = safe_get("x/?id=#{$id}").to_i
 		@sy = safe_get("y/?id=#{$id}").to_i
-		@room = room
+		@x = @sx+@room.x
+		@y = @sy+@room.y
 		
 		while_key_pressed(:down) do
 			@sy += 5
@@ -146,11 +148,11 @@ class Room < Drawable
 		def collision obj
 			if obj.class == Player
 				safe_get "change_room/#{@to}?id=#{$id}"
+				@room.change
 				obj.sx = @player_pos[0]
 				obj.sy = @player_pos[1]
 				obj.update_x
 				obj.update_y
-				@room.change
 				@@game.current_state.objs.delete_if { |obj| obj.class == Door }
 			end
 		end
