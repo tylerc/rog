@@ -87,12 +87,12 @@ get '/set_x/:x' do
 	@x = params[:x]
 	unless @x == nil
 		@x = @x.to_i
-		@x = @player[:x]+5 if @x > @player[:x]+5
-		@x = @player[:x]-5 if @x < @player[:x]-5
-		@player[:x] = @x
-		@player[:x] = 0 if @x < 0
+		@x = 5 if @x > 5
+		@x = -5 if @x < -5
+		@player[:x] = @player[:x]+@x
+		@player[:x] = 0 if @player[:x] < 0
 		room = @player[:room]
-		@player[:x] = $rooms[room][:width]-@player[:width] if @x > $rooms[room][:width]-@player[:width]
+		@player[:x] = $rooms[room][:width]-@player[:width] if @player[:x] > $rooms[room][:width]-@player[:width]
 		return @player[:x].to_s
 	end
 end
@@ -101,12 +101,12 @@ get '/set_y/:y' do
 	@y = params[:y]
 	unless @y == nil
 		@y = @y.to_i
-		@y = @player[:y]+5 if @y > @player[:y]+5
-		@y = @player[:y]-5 if @y < @player[:y]-5
-		@player[:y] = @y
-		@player[:y] = 0 if @y < 0
+		@y = 5 if @y > 5
+		@y = -5 if @y < -5
+		@player[:y] = @player[:y]+@y
+		@player[:y] = 0 if @player[:y] < 0
 		room = @player[:room]
-		@player[:y] = $rooms[room][:height]-@player[:height] if @y > $rooms[room][:height]-@player[:height]
+		@player[:y] = $rooms[room][:height]-@player[:height] if @player[:y] > $rooms[room][:height]-@player[:height]
 		return @player[:y].to_s
 	end
 end

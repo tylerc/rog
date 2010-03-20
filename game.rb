@@ -34,30 +34,26 @@ class Player < GameObject
 		@y = @sy+@room.y
 		
 		while_key_pressed(:down) do
-			@sy += 5
-			update_y
+			update_y 5
 		end
 		while_key_pressed(:up) do
-			@sy -= 5
-			update_y
+			update_y -5
 		end
 		while_key_pressed(:right) do
-			@sx += 5
-			update_x
+			update_x 5
 		end
 		while_key_pressed(:left) do
-			@sx -= 5
-			update_x
+			update_x -5
 		end
 	end
 	
-	def update_x
-		@sx = safe_get("set_x/#{@sx}?id=#{$id}").to_i
+	def update_x x=0
+		@sx = safe_get("set_x/#{x}?id=#{$id}").to_i
 		@x = @sx+@room.x
 	end
 	
-	def update_y
-		@sy = safe_get("set_y/#{@sy}?id=#{$id}").to_i
+	def update_y y=0
+		@sy = safe_get("set_y/#{y}?id=#{$id}").to_i
 		@y = @sy+@room.y
 	end
 	
@@ -149,8 +145,6 @@ class Room < Drawable
 			if obj.class == Player
 				safe_get "change_room/#{@to}?id=#{$id}"
 				@room.change
-				obj.sx = @player_pos[0]
-				obj.sy = @player_pos[1]
 				obj.update_x
 				obj.update_y
 				@@game.current_state.objs.delete_if { |obj| obj.class == Door }
