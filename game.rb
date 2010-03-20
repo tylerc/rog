@@ -106,7 +106,7 @@ class PlayerManager < GameObject
 		pl = eval safe_get("list_players?id=#{$id}")
 		@players = pl if pl != nil
 		@players.each do |key,val|
-			if @players_inst[key] == nil
+			if @players_inst[key] == nil or (@players_inst[key] != nil and @players_inst[key].life == 0)
 				@players_inst[key] = NameText.new val[3], key, self, @room
 			end
 		end
