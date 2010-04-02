@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'rubygame'
 require 'httparty'
+require 'optparse'
 require 'engine'
 include Engine
 include Rubygame::Events
@@ -357,9 +358,27 @@ game = Game.new
 game.event(QuitRequested) do
 	exit
 end
-if ARGV[0] == "--skip"
+
+options = {}
+optparse = OptionParser.new do |opts|
+	options[:skip] = false
+	opts.on('--skip', 'Skip character design screen') do
+		options[:skip] = true
+	end
+	
+	options[:ip] = "localhost:4567"
+	opts.on('--ip ADDRESS', "Set the ip address of the server we're using") do |address|
+		options[:ip] = address
+	end
+end
+optparse.parse!
+
+if options[:skip]
 	game.switch_state InGame.new "Tyler", [255,255,255]
 else
 	game.switch_state Setup.new
 end
+
+$ip = options[:ip]
+
 game.run
