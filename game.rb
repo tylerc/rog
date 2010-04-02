@@ -6,9 +6,6 @@ require 'engine'
 include Engine
 include Rubygame::Events
 
-#$ip = "10.240.2.67:4567"
-$ip = "localhost:4567"
-#$ip = "localhost:9393"
 $id = ""
 
 def safe_get url
@@ -60,10 +57,6 @@ class Player < GameObject
 	
 	def update
 		safe_get "alive/?id=#{$id}"
-		#x = safe_get("x/?id=#{$id}").to_i
-		#y = safe_get("y/?id=#{$id}").to_i
-		#@x = x unless x == nil
-		#@y = y unless y == nil
 	end
 	
 	def draw
@@ -114,8 +107,6 @@ class PlayerManager < GameObject
 	def draw
 		@players.each do |key,val|
 			x,y,color,name = val
-			#@@screen.draw_box_s([x+@adjusted[0],y+@adjusted[1]],[x+20+@adjusted[0],y+20+@adjusted[1]], color)
-			#@@screen.draw_box_s([x,y],[x+20,y+20], color)
 			@@screen.draw_box_s([x+@room.x,y+@room.y],[x+@room.x+20,y+@room.y+20], color)
 		end
 	end
