@@ -27,6 +27,14 @@ Playing
 
     ruby game.rb
 
+The server might not always be running locally, so use the --ip flag
+to change the address of the server that's being used:
+   
+   ruby game.rb --ip 0.0.0.0:1234
+
+Replace "0.0.0.0" with the ip address and "1234" with the port number
+the server is listening on.
+
 If you're a developer, and want to skip the player creation screen,
 run the game with this command:
     
