@@ -11,7 +11,7 @@ Requirements
 is being developed and tested on)
 
 Ruby 1.9.1 (http://ruby-lang.org/ )
-Rubygame 2.6.2 (http://rubygame.org/ )
+Rubygame 2.6.3 (http://rubygame.org/ )
 HTTParty 0.5.2 (http://httparty.rubyforge.org/ )
 Sinatra 0.9.6 (http://sinatrarb.com/ )
 Thin 1.2.7 (http://code.macournoyer.com/thin/ )
