@@ -64,6 +64,7 @@ get '/list_players/?' do
 	$ids.each_value do |val|
 		hash[val[:num]] = [val[:x], val[:y], val[:color], val[:name]] unless @player[:room] != val[:room]
 	end
+	hash[-1] = [$rooms[@player[:room]][:width]/2-10, $rooms[@player[:room]][:height]/2-10, [255,200,100], ""] if $rooms[@player[:room]][:last]
 	hash.to_s
 end
 
