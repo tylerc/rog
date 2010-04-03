@@ -10,11 +10,11 @@ Requirements
 (ROG may work with different or older versions, but these are what it
 is being developed and tested on)
 
-Ruby 1.9.1 (http://ruby-lang.org/)
-Rubygame 2.6.2 (http://rubygame.org/)
-HTTParty 0.5.2 (http://httparty.rubyforge.org/)
-Sinatra 0.9.6 (http://sinatrarb.com/)
-Thin 1.2.7 (http://code.macournoyer.com/thin/)
+Ruby 1.9.1 (http://ruby-lang.org/ )
+Rubygame 2.6.2 (http://rubygame.org/ )
+HTTParty 0.5.2 (http://httparty.rubyforge.org/ )
+Sinatra 0.9.6 (http://sinatrarb.com/ )
+Thin 1.2.7 (http://code.macournoyer.com/thin/ )
 
 Playing
 -------
@@ -83,11 +83,11 @@ before we get some more of the base implementation done.
 
 ### Contributing ###
 
-We're on github (http://github.com/tylerc/rog) so please just fork us
+We're on github (http://github.com/tylerc/rog ) so please just fork us
 and get hacking. Get hacking on what, you ask? Many things!:
 
     * Fix bugs in the issue tracker
-      (http://github.com/tylerc/rog/issues)
+      (http://github.com/tylerc/rog/issues )
     * File bugs in the issue tracker
     * Write documentation
     * Implement the design docs (when they're finally put up)
