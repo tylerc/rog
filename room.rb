@@ -57,6 +57,8 @@ class Rooms
 			side = sides[rand(sides.length)]
 		end
 		
+		room1[:pos] = [0,0] if room1[:pos] == nil
+		
 		case side
 			when :top
 				x = rand(room1[:width]-100)
@@ -69,6 +71,7 @@ class Rooms
 				room1[:has_doors_on] += [:top]
 				room2[:doors][room1[:num]] = [door2,spawn2]
 				room2[:has_doors_on] += [:bottom]
+				room2[:pos] = [room1[:pos][0],room1[:pos][1]-1]
 			when :right
 				y = rand(room1[:height]-100)
 				y2 = rand(room2[:height]-100)
@@ -80,6 +83,7 @@ class Rooms
 				room1[:has_doors_on] += [:right]
 				room2[:doors][room1[:num]] = [door2,spawn2]
 				room2[:has_doors_on] += [:left]
+				room2[:pos] = [room1[:pos][0]+1,room1[:pos][1]]
 			when :bottom
 				x = rand(room1[:width]-100)
 				x2 = rand(room2[:width]-100)
@@ -91,6 +95,7 @@ class Rooms
 				room1[:has_doors_on] += [:bottom]
 				room2[:doors][room1[:num]] = [door2,spawn2]
 				room2[:has_doors_on] += [:top]
+				room2[:pos] = [room1[:pos][0],room1[:pos][1]+1]
 			when :left
 				y = rand(room1[:height]-100)
 				y2 = rand(room2[:height]-100)
@@ -102,6 +107,7 @@ class Rooms
 				room1[:has_doors_on] += [:left]
 				room2[:doors][room1[:num]] = [door2,spawn2]
 				room2[:has_doors_on] += [:right]
+				room2[:pos] = [room1[:pos][0]-1,room1[:pos][1]]
 		end
 	end
 	
