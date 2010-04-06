@@ -13,6 +13,7 @@ def safe_get url
 		HTTParty.get("http://#{$ip}/" + url)
 	rescue Errno::EADDRINUSE
 		puts "Address already in use"
+		retry
 	rescue Errno::ECONNREFUSED
 		puts "Connection refused"
 	rescue
