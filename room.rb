@@ -1,29 +1,3 @@
-=begin
-
-Problems
-========
-
-Generate 100 rooms
-
-1 initial branch ("path")
-Connections up, down, left, right
-Corresponding back connections
-
-Multiple secondary branches
-
-Possible creation steps
-=======================
-
-# Create initial branch (will not die)
-	
-# Continue intial branch
-# Continue or kill secondary branch
-
-# Create offshoot
-# Create secondary branch
-
-=end
-
 class Rooms
 	attr_accessor :num, :rooms
 	
