@@ -4,6 +4,7 @@ class Rooms
 	def initialize
 		@rooms = {}
 		@num = 0
+		@poses = [[0,0]]
 	end
 	
 	def create_room branch=nil, width=nil, height=nil
@@ -22,16 +23,28 @@ class Rooms
 	end
 	
 	def add_connection room1, room2, side=nil
+		room1[:pos] = [0,0] if room1[:pos] == nil
+		
 		# Pick side
 		if side == nil
 			sides = [:top, :right, :bottom, :left]
 			room1[:has_doors_on].each do |part|
 				sides.delete_if { |value| value == part }
 			end
+			sides.each do |side|
+				case side
+					when :top
+						sides.delete side if @poses.index([room1[:pos][0],room1[:pos][1]-1]) != nil
+					when :right
+						sides.delete side if @poses.index([room1[:pos][0]+1,room1[:pos][1]]) != nil
+					when :bottom
+						sides.delete side if @poses.index([room1[:pos][0],room1[:pos][1]+1]) != nil
+					when :left
+						sides.delete side if @poses.index([room1[:pos][0]-1,room1[:pos][1]]) != nil
+				end
+			end
 			side = sides[rand(sides.length)]
 		end
-		
-		room1[:pos] = [0,0] if room1[:pos] == nil
 		
 		case side
 			when :top
@@ -83,6 +96,7 @@ class Rooms
 				room2[:has_doors_on] += [:right]
 				room2[:pos] = [room1[:pos][0]-1,room1[:pos][1]]
 		end
+		@poses += [room2[:pos]]
 	end
 	
 	def export
@@ -100,7 +114,7 @@ def create_dungeon
 		end
 	end
 	dungeon.rooms[19][:last] = true
-	
+=begin
 	# Walk initial branch, add offshoots
 	20.times do |i|
 		if rand(3) == 0
@@ -147,6 +161,7 @@ def create_dungeon
 			end
 		end
 	end
+=end
 	
 	dungeon.export
 end
