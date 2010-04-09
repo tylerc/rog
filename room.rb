@@ -1,10 +1,11 @@
 class Rooms
-	attr_accessor :num, :rooms
+	attr_accessor :num, :rooms, :poses, :fail
 	
 	def initialize
 		@rooms = {}
 		@num = 0
 		@poses = [[0,0]]
+		@fail = false
 	end
 	
 	def create_room branch=nil, width=nil, height=nil
@@ -31,17 +32,13 @@ class Rooms
 			room1[:has_doors_on].each do |part|
 				sides.delete_if { |value| value == part }
 			end
-			sides.each do |side|
-				case side
-					when :top
-						sides.delete side if @poses.index([room1[:pos][0],room1[:pos][1]-1]) != nil
-					when :right
-						sides.delete side if @poses.index([room1[:pos][0]+1,room1[:pos][1]]) != nil
-					when :bottom
-						sides.delete side if @poses.index([room1[:pos][0],room1[:pos][1]+1]) != nil
-					when :left
-						sides.delete side if @poses.index([room1[:pos][0]-1,room1[:pos][1]]) != nil
-				end
+			sides.delete :top if @poses.index([room1[:pos][0],room1[:pos][1]-1]) != nil
+			sides.delete :right if @poses.index([room1[:pos][0]+1,room1[:pos][1]]) != nil
+			sides.delete :bottom if @poses.index([room1[:pos][0],room1[:pos][1]+1]) != nil
+			sides.delete :left if @poses.index([room1[:pos][0]-1,room1[:pos][1]]) != nil
+			if sides == []
+				@fail = true
+				return false
 			end
 			side = sides[rand(sides.length)]
 		end
@@ -106,63 +103,71 @@ end
 
 def create_dungeon
 	dungeon = Rooms.new
-	# Create main branch
-	20.times do |i|
-		dungeon.create_room(:main)
-		if i != 0
-			dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
-		end
-	end
-	dungeon.rooms[19][:last] = true
-=begin
-	# Walk initial branch, add offshoots
-	20.times do |i|
-		if rand(3) == 0
-			room = dungeon.create_room(:offshoot)
-			dungeon.add_connection(dungeon.rooms[i], room)
-		end
-	end
-	
-	# Walk initial branch, add secondary branches
-	branches = []
-	rand(5).times do |i|
-		branch = []
-		room = dungeon.create_room("s#{i}".to_sym)
-		dungeon.add_connection(dungeon.rooms[rand(20)], room)
-		branch += [room]
-		11.times do |j|
-			room = dungeon.create_room("s#{i}".to_sym)
-			dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
-			branch += [room]
-		end
-		room[:last] = true
-		branches += [branch]
-	end
-	
-	branches.each do |branch|
-		# Add offshoots to secondary branches
-		branch.length.times do |i|
-			if rand(3) == 0
-				room = dungeon.create_room(:offshoot)
-				dungeon.add_connection(branch[i], room)
+	loop do
+		dungeon = Rooms.new
+		# Create main branch
+		20.times do |i|
+			dungeon.create_room(:main)
+			if i != 0
+				dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
 			end
 		end
+		dungeon.rooms[19][:last] = true
+
+		# Walk initial branch, add offshoots
+		#20.times do |i|
+		#	if rand(3) == 0
+		#		room = dungeon.create_room(:offshoot)
+		#		dungeon.add_connection(dungeon.rooms[i], room)
+		#	end
+		#end
 		
-		# Add tertiary branches to secondary branches
-		branch.length.times do |i|
-			if rand(4) == 0
-				room = dungeon.create_room(:t)
-				dungeon.add_connection(branch[i], room)
-				5.times do |j|
+		# Walk initial branch, add secondary branches
+		branches = []
+		rand(5).times do |i|
+			branch = []
+			room = dungeon.create_room("s#{i}".to_sym)
+			dungeon.add_connection(dungeon.rooms[rand(20)], room)
+			branch += [room]
+			11.times do |j|
+				room = dungeon.create_room("s#{i}".to_sym)
+				dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
+				branch += [room]
+			end
+			room[:last] = true
+			branches += [branch]
+		end
+
+		branches.each do |branch|
+			# Add offshoots to secondary branches
+			#branch.length.times do |i|
+			#	if rand(3) == 0
+			#		room = dungeon.create_room(:offshoot)
+			#		dungeon.add_connection(branch[i], room)
+			#	end
+			#end
+			
+			# Add tertiary branches to secondary branches
+			branch.length.times do |i|
+				if rand(4) == 0
 					room = dungeon.create_room(:t)
-					dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
+					dungeon.add_connection(branch[i], room)
+					5.times do |j|
+						room = dungeon.create_room(:t)
+						dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
+					end
+					room[:last] = true
 				end
-				room[:last] = true
 			end
 		end
+
+
+		if dungeon.fail or dungeon.num == 20
+			redo
+		else
+			raise StopIteration
+		end
 	end
-=end
-	
 	dungeon.export
 end
 
