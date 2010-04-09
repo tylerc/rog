@@ -52,7 +52,7 @@ end
 get '*/?' do
 	if @id == nil
 		return "No id"
-	elsif $ids.index(@id) == nil
+	elsif $ids[@id] == nil
 		return "Incorrect id"
 	else
 		@player = $ids[@id]
