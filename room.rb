@@ -28,15 +28,11 @@ class Rooms
 		
 		# Pick side
 		if side == nil
-			sides = [:top, :right, :bottom, :left]
-			room1[:has_doors_on].each do |part|
-				sides.delete_if { |value| value == part }
-			end
-			sides.delete :top if @poses.index([room1[:pos][0],room1[:pos][1]-1]) != nil
-			sides.delete :right if @poses.index([room1[:pos][0]+1,room1[:pos][1]]) != nil
-			sides.delete :bottom if @poses.index([room1[:pos][0],room1[:pos][1]+1]) != nil
-			sides.delete :left if @poses.index([room1[:pos][0]-1,room1[:pos][1]]) != nil
+			sides = dirs_available(room1)
 			if sides == []
+				$stderr.puts "Fail creating connection between:"
+				$stderr.puts "#{room1[:num]} of branch #{room1[:branch]}"
+				$stderr.puts "#{room2[:num]} of branch #{room2[:branch]}"
 				@fail = true
 				return false
 			end
@@ -96,6 +92,28 @@ class Rooms
 		@poses += [room2[:pos]]
 	end
 	
+	def dirs_available room
+		doors = [:top, :right, :bottom, :left]
+		room[:has_doors_on].each do |door|
+			doors.delete door
+		end
+		doors.delete :top if @poses.index([room[:pos][0],room[:pos][1]-1]) != nil
+		doors.delete :right if @poses.index([room[:pos][0]+1,room[:pos][1]]) != nil
+		doors.delete :bottom if @poses.index([room[:pos][0],room[:pos][1]+1]) != nil
+		doors.delete :left if @poses.index([room[:pos][0]-1,room[:pos][1]]) != nil
+		return doors
+	end
+	
+	def rooms_available
+		rooms = @rooms.clone
+		rooms.delete_if { |key,value| value[:has_doors_on].length == 4 }
+		rooms.delete_if do |key,value|
+			doors = dirs_available value
+			doors.length == 0
+		end
+		return rooms
+	end
+	
 	def export
 		return @rooms
 	end
@@ -112,24 +130,24 @@ def create_dungeon
 				dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
 			end
 		end
+		if dungeon.fail
+			File.open('fail-room.txt', 'w') { |f| f.puts dungeon.export }
+			redo
+		end
 		dungeon.rooms[19][:last] = true
-
-		# Walk initial branch, add offshoots
-		#20.times do |i|
-		#	if rand(3) == 0
-		#		room = dungeon.create_room(:offshoot)
-		#		dungeon.add_connection(dungeon.rooms[i], room)
-		#	end
-		#end
 		
 		# Walk initial branch, add secondary branches
 		branches = []
 		rand(5).times do |i|
 			branch = []
+			rooms = dungeon.rooms_available
 			room = dungeon.create_room("s#{i}".to_sym)
-			dungeon.add_connection(dungeon.rooms[rand(20)], room)
+			num = rooms.keys[rand(rooms.keys.length)]
+			room2 = rooms[num]
+			dungeon.add_connection(room2, room)
 			branch += [room]
 			11.times do |j|
+				break if dungeon.dirs_available(dungeon.rooms[dungeon.num-1]).length == 0
 				room = dungeon.create_room("s#{i}".to_sym)
 				dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
 				branch += [room]
@@ -139,20 +157,14 @@ def create_dungeon
 		end
 
 		branches.each do |branch|
-			# Add offshoots to secondary branches
-			#branch.length.times do |i|
-			#	if rand(3) == 0
-			#		room = dungeon.create_room(:offshoot)
-			#		dungeon.add_connection(branch[i], room)
-			#	end
-			#end
-			
 			# Add tertiary branches to secondary branches
 			branch.length.times do |i|
 				if rand(4) == 0
+					next if dungeon.rooms_available[(branch[i][:num])] == nil 
 					room = dungeon.create_room(:t)
 					dungeon.add_connection(branch[i], room)
 					5.times do |j|
+						break if dungeon.dirs_available(dungeon.rooms[dungeon.num-1]).length == 0
 						room = dungeon.create_room(:t)
 						dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
 					end
@@ -160,9 +172,23 @@ def create_dungeon
 				end
 			end
 		end
-
-
-		if dungeon.fail or dungeon.num == 20
+		
+		# Walk dungeon, add offshoots
+		20.times do |i|
+			if rand(3) == 0
+				rooms = dungeon.rooms_available
+				num = rooms.keys[rand(rooms.keys.length)]
+				room = rooms[num]
+				room2 = dungeon.create_room(:offshoot)	
+				dungeon.add_connection(room, room2)
+			end
+		end
+		
+		# This shouln't happen!
+		if dungeon.fail
+			$stderr.puts "Uh oh, fail in dungeon generator"
+			redo
+		elsif dungeon.num < 100
 			redo
 		else
 			raise StopIteration
