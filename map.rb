@@ -12,8 +12,8 @@ end
 
 class Map < GameObject
 	class Room < Box
-		def initialize x, y, doors
-			super :width => 20, :height => 20, :x => x, :y => y
+		def initialize x, y, doors, depth
+			super :width => 20, :height => 20, :x => x, :y => y, :depth => -depth
 			@doors = doors
 			draw_border
 			draw_doors
@@ -69,7 +69,7 @@ class Map < GameObject
 			rooms[i][:pos] = [rooms[i][:pos][0]+shift_cols,rooms[i][:pos][1]+shift_rows]
 		end
 		total.times do |i|
-			r = Room.new rooms[i][:pos][0]*20, rooms[i][:pos][1]*20, rooms[i][:has_doors_on]
+			r = Room.new rooms[i][:pos][0]*20, rooms[i][:pos][1]*20, rooms[i][:has_doors_on], i
 			r.color = [0,255,0] if i == 0
 			r.color = [255,200,100] if rooms[i][:last] and rooms[i][:branch] == :main
 			r.color = [255, 100, 0] if rooms[i][:last] and rooms[i][:branch].to_s[0] == 's'
