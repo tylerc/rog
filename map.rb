@@ -56,15 +56,9 @@ class Map < GameObject
 		end
 		height = rows.keys.length * 10
 		width = cols.keys.length * 10
-		p rows.keys.sort
-		p cols.keys.sort
-		puts width
-		puts height
 		# Shift pos so everything is positive
 		shift_rows = -rows.keys.sort[0]
 		shift_cols = -cols.keys.sort[0]
-		p shift_rows
-		p shift_cols
 		total.times do |i|
 			rooms[i][:pos] = [rooms[i][:pos][0]+shift_cols,rooms[i][:pos][1]+shift_rows]
 		end
