@@ -79,7 +79,7 @@ class Map < GameObject
 	end
 end
 
-rooms = eval File.read('rooms.txt')
+rooms = eval File.read('dungeon.txt')
 
 Map.new rooms
 
