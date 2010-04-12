@@ -130,10 +130,7 @@ def create_dungeon
 				dungeon.add_connection(dungeon.rooms[dungeon.num-2],dungeon.rooms[dungeon.num-1])
 			end
 		end
-		if dungeon.fail
-			File.open('fail-room.txt', 'w') { |f| f.puts dungeon.export }
-			redo
-		end
+		redo if dungeon.fail
 		dungeon.rooms[19][:last] = true
 		
 		# Walk initial branch, add secondary branches
