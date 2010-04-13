@@ -21,7 +21,7 @@ def safe_get url
 	end
 end
 
-class Player < GameObject
+class Player < Drawable
 	attr_reader :num
 	attr_accessor :sx, :sy
 	
@@ -33,7 +33,14 @@ class Player < GameObject
 		@sy = safe_get("y/?id=#{$id}").to_i
 		@x = @sx+@room.x
 		@y = @sy+@room.y
-		
+		@surface.fill [255,255,255]
+		@mouse_goat = ScapeGoat.new(:x => 0, :y => 0)
+		mouse_motion do |ev|
+			@mouse_goat.x = ev.pos[0]
+			@mouse_goat.y = ev.pos[1]
+			find_slope @mouse_goat
+		end
+=begin
 		while_key_pressed(:down) do
 			update_y 5
 		end
@@ -46,6 +53,23 @@ class Player < GameObject
 		while_key_pressed(:left) do
 			update_x -5
 		end
+=end
+		while_key_pressed(:up) do
+			x = x_offset(@angle, 5).to_i
+			y = y_offset(@angle, 5).to_i
+			update_x x
+			update_y y
+		end
+	end
+	
+	def find_slope target
+		rise = @y - (target.y+target.height/2).to_f
+		run = @x - (target.x+target.width/2).to_f
+		run = 1 if run == 0
+		dx = target.x - @x
+		dy = target.y - @y
+		radians = Math.atan2(dx, dy)
+		@angle = -radians * 180 / Math::PI + 180
 	end
 	
 	def update_x x=0
@@ -62,9 +86,9 @@ class Player < GameObject
 		safe_get "alive/?id=#{$id}"
 	end
 	
-	def draw
+	#def draw
 		#@@screen.draw_box([@x,@y],[@x+@width,@y+@height],[0,255,0])
-	end
+	#end
 end
 
 class PlayerManager < GameObject
