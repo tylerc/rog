@@ -126,6 +126,10 @@ get '/change_room/:room/?' do
 	end
 end
 
+get '/map/?' do
+	return $rooms.to_s
+end
+
 get '/update/game' do
 	File.read("game.rb")
 end

@@ -1,19 +1,10 @@
-require 'rubygems'
-require 'rubygame'
 require 'engine'
-require 'pp'
 include Engine
-include Rubygame::Events
-
-game = Game.new
-game.event(QuitRequested) do
-	exit
-end
 
 class Map < GameObject
 	class Room < Box
-		def initialize x, y, doors, depth
-			super :width => 20, :height => 20, :x => x, :y => y, :depth => -depth
+		def initialize x, y, size, doors, depth
+			super :width => size, :height => size, :x => x, :y => y, :depth => -depth
 			@doors = doors
 			draw_border
 			draw_doors
@@ -24,6 +15,10 @@ class Map < GameObject
 			@surface.draw_box_s([width/2,height/2],[width/2+1,height],[255,0,0]) if @doors.index(:bottom)
 			@surface.draw_box_s([0,height/2],[width/2,height/2+1],[255,0,0]) if @doors.index(:left)
 			@surface.draw_box_s([width/2,height/2],[width,height/2+1],[255,0,0]) if @doors.index(:right)
+		end
+		
+		def render surface
+			@surface.blit surface, [@x,@y]
 		end
 		
 		def draw_border
@@ -41,6 +36,7 @@ class Map < GameObject
 		total = rooms.keys.sort[-1]+1
 		rows = {}
 		cols = {}
+		size = 15
 		total.times do |i|
 			if rows[rooms[i][:pos][1]] == nil
 				rows[rooms[i][:pos][1]] = [rooms[i]]
@@ -54,8 +50,13 @@ class Map < GameObject
 				cols[rooms[i][:pos][0]] += [rooms[i]]
 			end
 		end
-		height = rows.keys.length * 10
-		width = cols.keys.length * 10
+		height = rows.keys.length * size
+		width = cols.keys.length * size
+		super :x => 0, :y => 0, :width => width, :height => height
+		old_x = @x
+		old_y = @y
+		diff_x = center_x-old_x
+		diff_y = center_y-old_y
 		# Shift pos so everything is positive
 		shift_rows = -rows.keys.sort[0]
 		shift_cols = -cols.keys.sort[0]
@@ -63,18 +64,26 @@ class Map < GameObject
 			rooms[i][:pos] = [rooms[i][:pos][0]+shift_cols,rooms[i][:pos][1]+shift_rows]
 		end
 		total.times do |i|
-			r = Room.new rooms[i][:pos][0]*20, rooms[i][:pos][1]*20, rooms[i][:has_doors_on], i
+			r = Room.new rooms[i][:pos][0]*size+diff_x, rooms[i][:pos][1]*size+diff_y, size, rooms[i][:has_doors_on], i
 			r.color = [0,255,0] if i == 0
 			r.color = [255,200,100] if rooms[i][:last] and rooms[i][:branch] == :main
 			r.color = [255, 100, 0] if rooms[i][:last] and rooms[i][:branch].to_s[0] == 's'
 			r.color = [0, 200, 200] if rooms[i][:last] and rooms[i][:branch] == :t
 		end
-		super :x => 0, :y => 0, :width => width, :height => height
 	end
 end
 
-rooms = eval File.read('dungeon.txt')
-
-Map.new rooms
-
-game.run
+class MapState < State
+	def initialize surface
+		super()
+		@surface = surface
+	end
+	
+	def setup
+		Drawable.new :surface => @surface, :depth => -200
+		Map.new(eval(safe_get("map/?id=#{$id}"))).center
+		key_press(:m) do
+			@@game.pop_state
+		end
+	end
+end

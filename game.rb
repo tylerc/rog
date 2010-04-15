@@ -2,7 +2,9 @@ require 'rubygems'
 require 'rubygame'
 require 'httparty'
 require 'optparse'
+
 require 'engine'
+require 'map'
 include Engine
 include Rubygame::Events
 
@@ -189,6 +191,9 @@ class InGame < State
 			File.open("engine.rb", "w") { |f| f.puts engine }
 			Rubygame.quit
 			exec("ruby.exe game.rb")
+		end
+		key_press(:m) do
+			@@game.push_state(MapState.new(@@screen.convert))
 		end
 	end
 end
