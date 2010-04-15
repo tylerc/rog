@@ -44,7 +44,7 @@ module Engine
 	class Game
 		include EventOwner
 		# The screen we're drawing to
-		attr_reader :screen
+		attr_reader :screen_surf
 		# The state the game is in/using
 		attr_reader :current_state
 		# Game's FPS
@@ -69,6 +69,7 @@ module Engine
 			@fps = s[:fps]
 			@screen = Rubygame::Screen.new [s[:width], s[:height]], 0, s[:flags]
 			@screen.title = s[:title]
+			@screen_surf = Rubygame::Surface.new [@screen.width, @screen.height]
 		
 			@queue = Rubygame::EventQueue.new
 			@queue.enable_new_style_events
@@ -151,11 +152,13 @@ module Engine
 		
 		# Draws the screen
 		def draw
-			@screen.fill @current_state.bg_color
+			@screen_surf.fill @current_state.bg_color
 			
 			@current_state.objs.each do |obj|
 				obj.draw
 			end
+			
+			@screen_surf.blit @screen, [0,0]
 		
 			@screen.flip
 		end
@@ -253,7 +256,7 @@ module Engine
 		# Gives GameObjects access to the Game object
 		def self.add_to_game game
 			@@game = game
-			@@screen = game.screen
+			@@screen = game.screen_surf
 		end
 		
 		# Method run when a collision occurs
@@ -514,7 +517,7 @@ module Engine
 		# Gives state objects access to the game class
 		def self.add_to_game game
 			@@game = game
-			@@screen = game.screen
+			@@screen = game.screen_surf
 		end
 		
 		# Code that is run when a state takes the stage
