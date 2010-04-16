@@ -125,7 +125,7 @@ class PlayerManager < GameObject
 end
 
 class Room < Drawable
-
+	attr_reader :room
 	class Door < Drawable
 		def initialize pos, to, room
 			@rect = pos[0]
@@ -193,7 +193,7 @@ class InGame < State
 			exec("ruby.exe game.rb")
 		end
 		key_press(:m) do
-			@@game.push_state(MapState.new(@@screen.convert))
+			@@game.push_state(MapState.new(@@screen.convert,room.room[:num]))
 		end
 	end
 end
