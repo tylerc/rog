@@ -126,6 +126,7 @@ get '/change_room/:room/?' do
 		@player[:room] = @room.to_i
 		@player[:rooms_visted] += [@room.to_i]
 	end
+	""
 end
 
 get '/map/?' do
