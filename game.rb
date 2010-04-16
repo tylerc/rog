@@ -183,16 +183,6 @@ class InGame < State
 		room = Room.new
 		player = Player.new @name, @color, room
 		manager = PlayerManager.new player, room
-		key_release(:u) do
-			game = safe_get("update/game")
-			server = safe_get("update/server")
-			engine = safe_get("update/engine")
-			File.open("game.rb", "w") { |f| f.puts game }
-			File.open("server.rb", "w") { |f| f.puts server }
-			File.open("engine.rb", "w") { |f| f.puts engine }
-			Rubygame.quit
-			exec("ruby.exe game.rb")
-		end
 		key_press(:m) do
 			@@game.push_state(MapState.new(@@screen.convert,room.room[:num]))
 		end

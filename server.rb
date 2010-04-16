@@ -137,15 +137,3 @@ get '/map/?' do
 	end
 	return visted.to_s
 end
-
-get '/update/game' do
-	File.read("game.rb")
-end
-
-get '/update/server' do
-	File.read('server.rb')
-end
-
-get '/update/engine' do
-	File.read('engine.rb')
-end
