@@ -17,10 +17,6 @@ class Map < GameObject
 			@surface.draw_box_s([width/2,height/2],[width,height/2+1],[255,0,0]) if @doors.index(:right)
 		end
 		
-		def render surface
-			@surface.blit surface, [@x,@y]
-		end
-		
 		def draw_border
 			@surface.draw_box([0,0],[@width-2,@height-2],[0,0,0])
 		end
