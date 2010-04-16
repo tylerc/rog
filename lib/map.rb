@@ -1,4 +1,4 @@
-require 'engine'
+require 'lib/engine'
 include Engine
 
 class Map < GameObject
