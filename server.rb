@@ -36,6 +36,7 @@ get '/add_player/?' do
 				:room => 0,
 				:width => 20,
 				:height => 20,
+				:rooms_visted => [0],
 				}
 	$num += 1
 	id
@@ -123,11 +124,16 @@ get '/change_room/:room/?' do
 	unless params[:room] == nil
 		@player[:x], @player[:y] = $rooms[@player[:room]][:doors][@room.to_i][1]
 		@player[:room] = @room.to_i
+		@player[:rooms_visted] += [@room.to_i]
 	end
 end
 
 get '/map/?' do
-	return $rooms.to_s
+	visted = {}
+	@player[:rooms_visted].each do |room|
+		visted[room] = $rooms[room]
+	end
+	return visted.to_s
 end
 
 get '/update/game' do
