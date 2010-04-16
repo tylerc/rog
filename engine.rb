@@ -163,22 +163,33 @@ module Engine
 			@screen.flip
 		end
 		
+		# Tell all the objs that the state is changing
+		def notify_of_state_change
+			@current_state.objs.each do |obj|
+				obj.state_change
+			end
+		end
+		
 		# Switches the state and destroys the current state
 		#
 		# Takes a state class (initialized) as an argument
 		def switch_state state
 			@state_buffer = Proc.new do
+				notify_of_state_change
 				@objs2 = []
 				@current_state = state
 				@current_state.setup
+				notify_of_state_change
 			end
 		end
 		
 		# Pops a state off the state stack and makes it the current state. (This destroys the current state)
 		def pop_state	
 			@state_buffer = Proc.new do
+				notify_of_state_change
 				@objs2 = []
 				@current_state = @states.pop
+				notify_of_state_change
 			end
 		end
 		
@@ -187,9 +198,11 @@ module Engine
 		# Takes a state class (initialized) as an argument
 		def push_state state
 			@state_buffer = Proc.new do
+				notify_of_state_change
 				@states.push @current_state
 				@current_state = state
 				@current_state.setup
+				notify_of_state_change
 			end
 		end
 		
@@ -301,6 +314,10 @@ module Engine
 			# A ScapeGoat the size of the screen, used in GameObject#on_screen?
 			@@screen_goat ||= Engine::ScapeGoat.new(:width => @@screen.width, :height => @@screen.height)
 			@@game.collision_between(self, @@screen_goat)
+		end
+		
+		# Method called when @@game changes state
+		def state_change
 		end
 	end
 	
@@ -613,6 +630,23 @@ module Engine
 			key_release(key) do |ev|
 				slave.active = false
 			end
+			# The following is a completely hack-ish way
+			# of getting the slave's @active right when
+			# state changes happen. We have to do it this
+			# way because Rubygame doesn't have a native
+			# get_key_state method or equivilent
+			def slave.key= key
+				@key = key
+			end
+			slave.key = key
+			def slave.state_change
+				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
+				if key_down == 0
+					@active = false
+				elsif key_down == 1
+					@active = true
+				end
+			end
 		end
 		
 		# Respond while a key is released
@@ -624,6 +658,23 @@ module Engine
 			end
 			key_release(key) do |ev|
 				slave.active = true
+			end
+			# The following is a completely hack-ish way
+			# of getting the slave's @active right when
+			# state changes happen. We have to do it this
+			# way because Rubygame doesn't have a native
+			# get_key_state method or equivilent
+			def slave.key= key
+				@key = key
+			end
+			slave.key = key
+			def slave.state_change
+				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
+				if key_down == 0
+					@active = true
+				elsif key_down == 1
+					@active = false
+				end
 			end
 		end
 		
