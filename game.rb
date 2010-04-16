@@ -321,9 +321,12 @@ class Setup < State
 				@text.color = [255,255,255]
 			end
 			
-			mouse_pressed_on do
+			start_game = Proc.new do
 				@@game.switch_state InGame.new @name.text, @rgb.color
 			end
+			
+			mouse_pressed_on { start_game.call }
+			key_press(:return) { start_game.call }
 		end
 	end
 	
