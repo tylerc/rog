@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 class Rooms
 	attr_accessor :num, :rooms, :poses, :fail
 	

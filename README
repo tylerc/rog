@@ -43,6 +43,7 @@ run the game with this command:
 ### Controls ###
 
 Arrow keys - Movement
+M - Opens/Closes the Map
 
 ### This game sucks! There's nothing to do! ###
 
@@ -59,12 +60,19 @@ Developer Documentation
 Everything *should* be pretty obviously named, but here's the current
 file listing for clarification:
 
-     game.rb - The game client is here
-     engine.rb - The game engine, very home made, mostly solid but it
+     game.rb - The game client is here (it loads most of its pieces
+     	       from lib/)
+     server.rb - This is where the server code lives     
+     lib/engine.rb - The game engine, very home made, mostly solid but it
      	       	 still has some rough edges
-     server.rb - This is where the server code lives
-     dungeon.rb - Contains the dungeon generation code
-     FreeSans.ttf - Our font file, this may change later
+     lib/dungeon.rb - Contains the dungeon generation code
+     lib/map.rb - Contains the minimap drawing code
+     lib/setup.rb - Code for the Setup game state is here, you see
+     		    this code running when you launch the game and
+		    configure your player.
+     lib/ingame.rb - The code for the InGame state is here, this code 
+     		     is what's running most of the time
+     media/FreeSans.ttf - Our font file, this may change later
      scratch - This file is for code that we may want to keep for
      	       later, but it didn't get commited, or was removed at
      	       some point.

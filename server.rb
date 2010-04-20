@@ -1,8 +1,9 @@
+#!/usr/bin/env ruby
 require 'rubygems'
 require 'sinatra'
 require 'digest/sha1'
 
-require 'room'
+require 'lib/dungeon'
 
 $salt = rand
 $ids = {}
@@ -36,6 +37,7 @@ get '/add_player/?' do
 				:room => 0,
 				:width => 20,
 				:height => 20,
+				:rooms_visted => [0],
 				}
 	$num += 1
 	id
@@ -123,17 +125,15 @@ get '/change_room/:room/?' do
 	unless params[:room] == nil
 		@player[:x], @player[:y] = $rooms[@player[:room]][:doors][@room.to_i][1]
 		@player[:room] = @room.to_i
+		@player[:rooms_visted] += [@room.to_i]
 	end
+	""
 end
 
-get '/update/game' do
-	File.read("game.rb")
-end
-
-get '/update/server' do
-	File.read('server.rb')
-end
-
-get '/update/engine' do
-	File.read('engine.rb')
+get '/map/?' do
+	visted = {}
+	@player[:rooms_visted].each do |room|
+		visted[room] = $rooms[room]
+	end
+	return visted.to_s
 end

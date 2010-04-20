@@ -44,7 +44,7 @@ module Engine
 	class Game
 		include EventOwner
 		# The screen we're drawing to
-		attr_reader :screen
+		attr_reader :screen_surf
 		# The state the game is in/using
 		attr_reader :current_state
 		# Game's FPS
@@ -69,6 +69,7 @@ module Engine
 			@fps = s[:fps]
 			@screen = Rubygame::Screen.new [s[:width], s[:height]], 0, s[:flags]
 			@screen.title = s[:title]
+			@screen_surf = Rubygame::Surface.new [@screen.width, @screen.height]
 		
 			@queue = Rubygame::EventQueue.new
 			@queue.enable_new_style_events
@@ -151,13 +152,22 @@ module Engine
 		
 		# Draws the screen
 		def draw
-			@screen.fill @current_state.bg_color
+			@screen_surf.fill @current_state.bg_color
 			
 			@current_state.objs.each do |obj|
 				obj.draw
 			end
+			
+			@screen_surf.blit @screen, [0,0]
 		
 			@screen.flip
+		end
+		
+		# Tell all the objs that the state is changing
+		def notify_of_state_change
+			@current_state.objs.each do |obj|
+				obj.state_change
+			end
 		end
 		
 		# Switches the state and destroys the current state
@@ -165,17 +175,21 @@ module Engine
 		# Takes a state class (initialized) as an argument
 		def switch_state state
 			@state_buffer = Proc.new do
+				notify_of_state_change
 				@objs2 = []
 				@current_state = state
 				@current_state.setup
+				notify_of_state_change
 			end
 		end
 		
 		# Pops a state off the state stack and makes it the current state. (This destroys the current state)
 		def pop_state	
 			@state_buffer = Proc.new do
+				notify_of_state_change
 				@objs2 = []
 				@current_state = @states.pop
+				notify_of_state_change
 			end
 		end
 		
@@ -184,9 +198,11 @@ module Engine
 		# Takes a state class (initialized) as an argument
 		def push_state state
 			@state_buffer = Proc.new do
+				notify_of_state_change
 				@states.push @current_state
 				@current_state = state
 				@current_state.setup
+				notify_of_state_change
 			end
 		end
 		
@@ -253,7 +269,7 @@ module Engine
 		# Gives GameObjects access to the Game object
 		def self.add_to_game game
 			@@game = game
-			@@screen = game.screen
+			@@screen = game.screen_surf
 		end
 		
 		# Method run when a collision occurs
@@ -298,6 +314,10 @@ module Engine
 			# A ScapeGoat the size of the screen, used in GameObject#on_screen?
 			@@screen_goat ||= Engine::ScapeGoat.new(:width => @@screen.width, :height => @@screen.height)
 			@@game.collision_between(self, @@screen_goat)
+		end
+		
+		# Method called when @@game changes state
+		def state_change
 		end
 	end
 	
@@ -514,7 +534,7 @@ module Engine
 		# Gives state objects access to the game class
 		def self.add_to_game game
 			@@game = game
-			@@screen = game.screen
+			@@screen = game.screen_surf
 		end
 		
 		# Code that is run when a state takes the stage
@@ -610,6 +630,23 @@ module Engine
 			key_release(key) do |ev|
 				slave.active = false
 			end
+			# The following is a completely hack-ish way
+			# of getting the slave's @active right when
+			# state changes happen. We have to do it this
+			# way because Rubygame doesn't have a native
+			# get_key_state method or equivilent
+			def slave.key= key
+				@key = key
+			end
+			slave.key = key
+			def slave.state_change
+				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
+				if key_down == 0
+					@active = false
+				elsif key_down == 1
+					@active = true
+				end
+			end
 		end
 		
 		# Respond while a key is released
@@ -621,6 +658,23 @@ module Engine
 			end
 			key_release(key) do |ev|
 				slave.active = true
+			end
+			# The following is a completely hack-ish way
+			# of getting the slave's @active right when
+			# state changes happen. We have to do it this
+			# way because Rubygame doesn't have a native
+			# get_key_state method or equivilent
+			def slave.key= key
+				@key = key
+			end
+			slave.key = key
+			def slave.state_change
+				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
+				if key_down == 0
+					@active = true
+				elsif key_down == 1
+					@active = false
+				end
 			end
 		end
 		
