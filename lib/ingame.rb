@@ -113,7 +113,6 @@ class PlayerManager < GameObject
 			@players = pl if pl != nil
 			@players.each do |key,val|
 				if @players_inst[key] == nil or (@players_inst[key] != nil and @players_inst[key].life == 0)
-					#@players_inst[key] = NameText.new val[4], key, self, @room
 					@players_inst[key] = GhostPlayer.new val[0], val[1], val[2], val[3], val[4], key, self, @room
 				end
 			end
