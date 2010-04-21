@@ -38,6 +38,7 @@ get '/add_player/?' do
 				:width => 20,
 				:height => 20,
 				:rooms_visted => [0],
+				:angle => 0,
 				}
 	$num += 1
 	id
@@ -66,9 +67,9 @@ get '/list_players/?' do
 	cleanup_timeouts
 	hash = {}
 	$ids.each_value do |val|
-		hash[val[:num]] = [val[:x], val[:y], val[:color], val[:name]] unless @player[:room] != val[:room]
+		hash[val[:num]] = [val[:x], val[:y], val[:angle], val[:color], val[:name]] unless @player[:room] != val[:room]
 	end
-	hash[-1] = [$rooms[@player[:room]][:width]/2-10, $rooms[@player[:room]][:height]/2-10, [255,200,100], ""] if $rooms[@player[:room]][:last]
+	hash[-1] = [$rooms[@player[:room]][:width]/2-10, $rooms[@player[:room]][:height]/2-10, 0, [255,200,100], ""] if $rooms[@player[:room]][:last]
 	hash.to_s
 end
 
@@ -88,32 +89,29 @@ get '/y/?' do
 	@player[:y].to_s
 end
 
-get '/set_x/:x' do
-	@x = params[:x]
-	unless @x == nil
+get '/update_player' do
+	limit = 5
+	unless @x == nil or @y == nil or @angle == nil
 		@x = @x.to_i
-		@x = 5 if @x > 5
-		@x = -5 if @x < -5
+		@x = limit if @x > limit
+		@x = -limit if @x < -limit
 		@player[:x] = @player[:x]+@x
 		@player[:x] = 0 if @player[:x] < 0
 		room = @player[:room]
 		@player[:x] = $rooms[room][:width]-@player[:width] if @player[:x] > $rooms[room][:width]-@player[:width]
-		return @player[:x].to_s
-	end
-end
-
-get '/set_y/:y' do
-	@y = params[:y]
-	unless @y == nil
+		
 		@y = @y.to_i
-		@y = 5 if @y > 5
-		@y = -5 if @y < -5
+		@y = limit if @y > limit
+		@y = -limit if @y < -limit
 		@player[:y] = @player[:y]+@y
 		@player[:y] = 0 if @player[:y] < 0
 		room = @player[:room]
 		@player[:y] = $rooms[room][:height]-@player[:height] if @player[:y] > $rooms[room][:height]-@player[:height]
-		return @player[:y].to_s
+		
+		@player[:angle] = @angle.to_i
+		return "#{@player[:x]},#{@player[:y]},#{@player[:angle]}"
 	end
+	""
 end
 
 get '/room/?' do
