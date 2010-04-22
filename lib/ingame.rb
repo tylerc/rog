@@ -19,7 +19,7 @@ class Player < GameObject
 			update_player 0, 0, @angle
 		end
 		
-		while_key_pressed(:up) do
+		while_key_pressed(:w) do
 			x = x_offset(@angle, 5).to_i
 			y = y_offset(@angle, 5).to_i
 			update_player x, y, @angle
