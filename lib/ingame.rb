@@ -15,23 +15,27 @@ class Player < GameObject
 		mouse_motion do |ev|
 			@mouse_goat.x = ev.pos[0]
 			@mouse_goat.y = ev.pos[1]
-			find_slope @mouse_goat
-			update_player 0, 0, @angle
+			unless find_slope(@mouse_goat) == false
+				update_player 0, 0, @angle
+			end
 		end
 		
-		while_key_pressed(:up) do
-			x = x_offset(@angle, 5).to_i
-			y = y_offset(@angle, 5).to_i
-			update_player x, y, @angle
+		while_key_pressed(:w) do
+			unless find_slope(@mouse_goat) == false
+				x = x_offset(@angle, 5).to_i
+				y = y_offset(@angle, 5).to_i
+				update_player x, y, @angle
+			end
 		end
 	end
 	
 	def find_slope target
-		rise = @y - (target.y+target.height/2).to_f
-		run = @x - (target.x+target.width/2).to_f
+		rise = @y-10 - (target.y+target.height/2).to_f
+		run = @x-10 - (target.x+target.width/2).to_f
 		run = 1 if run == 0
-		dx = target.x - @x
-		dy = target.y - @y
+		dx = target.x - @x-10
+		dy = target.y - @y-10
+		return false if dx.abs <= 2 and dy.abs <= 2
 		radians = Math.atan2(dx, dy)
 		@angle = -radians * 180 / Math::PI + 180
 	end
