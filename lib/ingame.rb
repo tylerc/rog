@@ -20,6 +20,7 @@ class Player < GameObject
 		end
 		
 		while_key_pressed(:w) do
+			find_slope @mouse_goat
 			x = x_offset(@angle, 5).to_i
 			y = y_offset(@angle, 5).to_i
 			update_player x, y, @angle
