@@ -28,11 +28,11 @@ class Player < GameObject
 	end
 	
 	def find_slope target
-		rise = @y - (target.y+target.height/2).to_f
-		run = @x - (target.x+target.width/2).to_f
+		rise = @y-10 - (target.y+target.height/2).to_f
+		run = @x-10 - (target.x+target.width/2).to_f
 		run = 1 if run == 0
-		dx = target.x - @x
-		dy = target.y - @y
+		dx = target.x - @x-10
+		dy = target.y - @y-10
 		radians = Math.atan2(dx, dy)
 		@angle = -radians * 180 / Math::PI + 180
 	end
