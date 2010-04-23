@@ -90,7 +90,7 @@ get '/y/?' do
 end
 
 get '/update_player' do
-	limit = 5
+	limit = 10
 	unless @x == nil or @y == nil or @angle == nil
 		@x = @x.to_i
 		@x = limit if @x > limit
