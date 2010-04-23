@@ -11,8 +11,12 @@ $num = 0
 $rooms = create_dungeon
 
 helpers do
+	def disconnect id
+		$ids.delete id
+	end
+	
 	def cleanup_timeouts
-		$ids.delete_if { |id,val| Time.now - val[:last_conn] > 5  }
+		$ids.each { |id,val| disconnect(id) if Time.now - val[:last_conn] > 5  }
 	end
 	
 	def transform_params params
@@ -134,4 +138,8 @@ get '/map/?' do
 		visted[room] = $rooms[room]
 	end
 	return visted.to_s
+end
+
+get '/disconnect/?' do
+	disconnect @id
 end

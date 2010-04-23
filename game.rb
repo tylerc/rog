@@ -28,6 +28,8 @@ end
 
 game = Game.new
 game.event(QuitRequested) do
+	safe_get("disconnect?id=#{$id}")
+	Rubygame.quit
 	exit
 end
 
