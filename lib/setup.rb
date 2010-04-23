@@ -25,18 +25,12 @@ class Setup < State
 			t.x = @x-t.width
 			FlashingLine.new @x, @y+5, self
 			
-			key_release(:left_shift) do
-				@shift = false
-			end
-			key_release(:right_shift) do
-				@shift = false
-			end
 			event(KeyPressed) do |ev|
-				@shift = true if ev.key == :left_shift or ev.key == :right_shift
-				
-				unless ev.key == :backspace or ev.key.to_s.length > 1
-					@text += ev.key if !@shift
-					@text += ev.key.upcase if @shift
+				unless ev.key == :backspace or (ev.key.to_s.length > 1 and ev.key.to_s[0..-2] != "number_")
+					key = ev.key.to_s
+					key = key[-1] if key[0..-2] == "number_"
+					key.upcase! if ev.modifiers.include?(:left_shift) or ev.modifiers.include?(:right_shift)
+					@text += key
 				end
 				@text += " " if ev.key == :space
 				@text = @text[0..-2] if ev.key == :backspace
