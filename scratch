@@ -5,3 +5,10 @@ def adjust
 	adjusted = [centered[0]-x,centered[1]-y]
 	return adjusted
 end
+
+# Prints out the average distance moved
+@i ||= 0
+@i += 1
+@dis_total ||= 0
+@dis_total += distance
+p @dis_total/@i
