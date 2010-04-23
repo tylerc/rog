@@ -22,8 +22,9 @@ class Player < GameObject
 		
 		while_key_pressed(:w) do
 			unless find_slope(@mouse_goat) == false
-				x = x_offset(@angle, 5).to_i
-				y = y_offset(@angle, 5).to_i
+				distance = (150 * @@game.tick).to_i
+				x = x_offset(@angle, distance).to_i
+				y = y_offset(@angle, distance).to_i
 				update_player x, y, @angle
 			end
 		end
