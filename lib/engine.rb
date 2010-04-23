@@ -53,6 +53,8 @@ module Engine
 		attr_reader :queue
 		# Game Events
 		attr_accessor :events
+		# Seconds since last update
+		attr_reader :tick
 		
 		# Creates a new game
 		#
@@ -75,6 +77,9 @@ module Engine
 			@queue.enable_new_style_events
 			@clock = Rubygame::Clock.new
 			@clock.target_framerate = s[:fps]
+			@clock.enable_tick_events
+			@clock.calibrate
+			@tick = 0.0
 			
 			GameObject.add_to_game self
 			State.add_to_game self
@@ -101,7 +106,7 @@ module Engine
 			loop do
 				update
 				draw
-				@clock.tick
+				@tick = @clock.tick.seconds
 			end
 		end
 		
