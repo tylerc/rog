@@ -31,6 +31,8 @@ before do
 end
 
 get '/add_player/?' do
+	return "Name can't be blank" if @name.strip.empty?
+	return "Name is too long (> 25 characters)" if @name.length > 25
 	id = Digest::SHA1.hexdigest(($num + $salt).to_s)
 	$ids[id] = {:x => rand($rooms[0][:width]-40),
 				:y => rand($rooms[0][:height]-40),
