@@ -142,4 +142,5 @@ end
 
 get '/disconnect/?' do
 	disconnect @id
+	""
 end
