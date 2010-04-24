@@ -26,10 +26,16 @@ class Setup < State
 			FlashingLine.new @x, @y+5, self
 			
 			event(KeyPressed) do |ev|
-				unless ev.key == :backspace or (ev.key.to_s.length > 1 and ev.key.to_s[0..-2] != "number_")
-					key = ev.key.to_s
-					key = key[-1] if key[0..-2] == "number_"
-					key.upcase! if ev.modifiers.include?(:left_shift) or ev.modifiers.include?(:right_shift)
+				approved = {:comma => ",", :minus => "-", :period => ".", :slash => "/", :equals => "=", :quote => "'", :left_bracket => "[", :right_bracket => "]", :semicolon => ";", :backslash => "\\", :backquote => "`", :number_0 => "0", :number_1 => "1", :number_2 => "2", :number_3 => "3", :number_4 => "4", :number_5 => "5", :number_6 => "6", :number_7 => "7", :number_8 => "8", :number_9 => "9"}
+				upcase = {"1" => "!", "2" => "@", "3" => "#", "4" => "$", "5" => "%", "6" => "^", "7" => "&", "8" => "*", "9" => "(", "0" => ")", "-" => "_", "=" => "+", "[" => "{", "]" => "}", ";" => ":", "'" => "\"", "," => "<", "." => ">", "/" => "?", "\\" => "|", "`" => "~"}
+				key = ev.key.to_s
+				key = approved[ev.key] if approved.include?(ev.key)
+				key = key[-1] if key[0..-2] == "number_"
+				if ev.modifiers.include?(:left_shift) or ev.modifiers.include?(:right_shift)
+					key.upcase!
+					key = upcase[key] if upcase.include?(key)
+				end
+				unless ev.key == :backspace or key.length > 1
 					@text += key
 				end
 				@text += " " if ev.key == :space
