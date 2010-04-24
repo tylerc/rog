@@ -116,6 +116,11 @@ class Setup < State
 			@hover_surface = Rubygame::Surface.new [@width, @height]
 			@hover_surface.fill [255,255,255]
 			@text = Text.new :text => "Start", :x => @x+20, :y => @y
+			@error = Text.new :text => " ", :x => 200, :y => 130, :color => [255,0,0], :size => 16
+			def @error.show_err err
+				method(:text=).call(err)
+				defer(lambda { method(:text=).call(" ") }, 60)
+			end
 			
 			@name = name
 			@rgb = rgb
@@ -131,7 +136,13 @@ class Setup < State
 			end
 			
 			start_game = Proc.new do
-				@@game.switch_state InGame.new @name.text, @rgb.color
+				if @name.text.strip.empty?
+					@error.show_err "Name can't be blank"
+				elsif @name.text.length > 25
+					@error.show_err "Name can't be longer than 25 characters"
+				else
+					@@game.switch_state InGame.new @name.text, @rgb.color
+				end
 			end
 			
 			mouse_pressed_on { start_game.call }
