@@ -21,8 +21,9 @@ def safe_get url
 		retry
 	rescue Errno::ECONNREFUSED
 		puts "Connection refused"
-	rescue
-		puts "Fail, unknown or unexpected error"
+	rescue Exception => e
+		puts "Fail, unknown or unexpected error:"
+		p e
 	end
 end
 
