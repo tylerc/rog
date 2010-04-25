@@ -12,6 +12,8 @@ class Player < GameObject
 		@sy = safe_get("y/?id=#{$id}").to_i
 		@x = @sx+@room.x
 		@y = @sy+@room.y
+		@room.x += center_x_diff
+		@room.y += center_y_diff
 		@mouse_goat = ScapeGoat.new(:x => 0, :y => 0)
 		@angle = 0
 		mouse_motion do |ev|
@@ -27,6 +29,10 @@ class Player < GameObject
 				distance = (150 * @@game.tick).to_i
 				x = x_offset(@angle, distance).to_i
 				y = y_offset(@angle, distance).to_i
+				@room.x -= x if @x+x < 120
+				@room.x -= x if @x+x > 520
+				@room.y -= y if @y+y < 80
+				@room.y -= y if @y+y > 400
 				update_player x, y, @angle
 			end
 		end
@@ -46,6 +52,8 @@ class Player < GameObject
 	def update_player x=0, y=0, angle=@angle
 		vals = safe_get("update_player?x=#{x}&y=#{y}&angle=#{angle}&id=#{$id}")
 		x,y,angle = vals.split ','
+		@sx = x
+		@sy = y
 		@x = x.to_i+@room.x
 		@y = y.to_i+@room.y
 		@angle = angle.to_i
@@ -153,8 +161,15 @@ class Room < Drawable
 				safe_get "change_room/#{@to}?id=#{$id}"
 				@room.change
 				obj.update_player
+				@room.x += obj.center_x_diff
+				@room.y += obj.center_y_diff
 				@@game.current_state.objs.delete_if { |obj| obj.class == Door }
 			end
+		end
+		
+		def update
+			@x = @rect[0]+@room.x
+			@y = @rect[1]+@room.y
 		end
 	end
 	

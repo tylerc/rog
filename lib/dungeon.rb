@@ -10,8 +10,8 @@ class Rooms
 	end
 	
 	def create_room branch=nil, width=nil, height=nil
-		width ||= rand(540)+100
-		height ||= rand(380)+100
+		width ||= rand(1000)+100
+		height ||= rand(1000)+100
 		@rooms[@num] = {
 			:width => width,
 			:height => height,
