@@ -302,6 +302,20 @@ module Engine
 			@x = @@screen.width/2-@width/2
 		end
 		
+		# How far away a GameObject is from being
+		# directly in the center of the screen on the x axis
+		def center_x_diff
+			x = @@screen.width/2-@width/2
+			return x-@x
+		end
+
+		# How far away a GameObject is from being
+		# directly in the center of the screen on the y axis
+		def center_y_diff
+			y = @@screen.height/2-@height/2
+			return y-@y
+		end
+		
 		# Centers along the y axis
 		def center_y
 			@y = @@screen.height/2-@height/2
