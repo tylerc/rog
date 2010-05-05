@@ -45,6 +45,7 @@ get '/add_player/?' do
 				:height => 20,
 				:rooms_visted => [0],
 				:angle => 0,
+				:health => 100,
 				}
 	$num += 1
 	id
@@ -73,7 +74,7 @@ get '/list_players/?' do
 	cleanup_timeouts
 	hash = {}
 	$ids.each_value do |val|
-		hash[val[:num]] = [val[:x], val[:y], val[:angle], val[:color], val[:name]] unless @player[:room] != val[:room]
+		hash[val[:num]] = [val[:x], val[:y], val[:angle], val[:color], val[:health], val[:name]] unless @player[:room] != val[:room]
 	end
 	hash[-1] = [$rooms[@player[:room]][:width]/2-10, $rooms[@player[:room]][:height]/2-10, 0, [255,200,100], ""] if $rooms[@player[:room]][:last]
 	hash.to_s

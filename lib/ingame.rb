@@ -79,19 +79,45 @@ class PlayerManager < GameObject
 		
 		def update
 			@x = @player.x+10-@width/2
-			@y = @player.y-20
+			@y = @player.y-30
+		end
+	end
+	
+	class HealthBar < Drawable
+		def initialize player
+			super :surface => Rubygame::Surface.new([50,5]), :depth => 0.2
+			@player = player
+			@health = player.health
+			redraw
+		end
+		
+		def redraw
+			@health = @player.health
+			@surface.fill [0,0,0]
+			@surface.draw_box_s([0,0],[@health/2,5],[0,255,0])
+			@surface.draw_box([0,0],[@width-2,@height-2],[255,255,255])
+		end
+		
+		def update
+			redraw if @player.health != @health
+			@x = @player.x+10-@width/2
+			@y = @player.y-10
 		end
 	end
 	
 	class GhostPlayer < Drawable
-		def initialize x, y, angle, color, name, num, manager, room
+		attr_reader :health
+		
+		def initialize x, y, angle, color, health, name, num, manager, room
 			super :x => x, :y => y, :width => 20, :height => 20, :angle => angle, :depth => 0.1
 			@num = num
 			@name = name
 			@manager = manager
 			@room = room
+			@health = health.to_i
 			@text = NameText.new name, self, room
 			@surface.fill color
+			@healthbar = HealthBar.new self
 		end
 		
 		def update
@@ -99,6 +125,7 @@ class PlayerManager < GameObject
 				@x = @manager.players[@num][0]+@room.x
 				@y = @manager.players[@num][1]+@room.y
 				@angle = @manager.players[@num][2]
+				@health = @manager.players[@num][4]
 			else
 				@life = 0
 			end
@@ -106,6 +133,7 @@ class PlayerManager < GameObject
 		
 		def destroy
 			@text.life = 0
+			@healthbar.life = 0
 		end
 	end
 	
@@ -128,7 +156,7 @@ class PlayerManager < GameObject
 			@players = pl if pl != nil
 			@players.each do |key,val|
 				if @players_inst[key] == nil or (@players_inst[key] != nil and @players_inst[key].life == 0)
-					@players_inst[key] = GhostPlayer.new val[0], val[1], val[2], val[3], val[4], key, self, @room
+					@players_inst[key] = GhostPlayer.new val[0], val[1], val[2], val[3], val[4], val[5], key, self, @room
 				end
 			end
 		end
