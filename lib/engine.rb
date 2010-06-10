@@ -672,11 +672,7 @@ module Engine
 			slave.key = key
 			def slave.state_change
 				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
-				if key_down == 0
-					@active = false
-				elsif key_down == 1
-					@active = true
-				end
+				@active = (key_down != 0)
 			end
 		end
 		
@@ -701,11 +697,7 @@ module Engine
 			slave.key = key
 			def slave.state_change
 				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
-				if key_down == 0
-					@active = true
-				elsif key_down == 1
-					@active = false
-				end
+				@active = (key_down == 0)
 			end
 		end
 		
