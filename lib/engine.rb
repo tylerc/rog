@@ -114,22 +114,25 @@ module Engine
 		# * Handles and delegates events to objects
 		# * Runs each objects update function
 		def update
-			@current_state.objs.each do |obj|
-				if obj.life <= 0
-					obj.destroy
-					@current_state.objs.delete obj
-					@current_state.events.delete_if { |x| x.owner == obj }
-				end
+			dead_objs = @current_state.objs.select { |obj| obj.life <= 0 }
+			dead_objs.each do |obj|
+				obj.destroy
+				@current_state.objs.delete obj
+				@current_state.events.delete_if { |x| x.owner == obj }
 			end
 			
+			i = 0
 			@current_state.objs.each do |obj|
-				@current_state.objs[@current_state.objs.index(obj)+1..-1].each do |obj2|
+				objs = @current_state.objs[i+1..-1]
+				objs = obj.collision_rules(objs.clone)
+				objs.each do |obj2|
 					unless collision_between(obj, obj2)
 						next
 					end
 					obj.collision obj2
 					obj2.collision obj
 				end
+				i += 1
 			end
 		
 			@queue.each do |ev|
@@ -279,16 +282,17 @@ module Engine
 		
 		# Method run when a collision occurs
 		def collision obj
+		end		
+		
+		# Method called when @@game changes state
+		def state_change
 		end
 		
-		# returns the horizantal distance if you moved at that angle, for that distance
-		def x_offset angle, distance
-			distance * Math.sin(angle * Math::PI/180)
-		end
-		
-		# returns the vertical distance if you moved at that angle, for that distance
-		def y_offset angle, distance
-			distance * Math.cos(angle * Math::PI/180) * -1
+		# Allows you to mess with the array of objects a GameObject
+		# is compared to for collision detection. Useful for getting
+		# rid of things that will never be collided with.
+		def collision_rules objs
+			return objs
 		end
 		
 		# Centers the object in the middle of the screen
@@ -296,12 +300,12 @@ module Engine
 			center_x
 			center_y
 		end
-		
+
 		# Centers along the x axis
 		def center_x
 			@x = @@screen.width/2-@width/2
 		end
-		
+
 		# How far away a GameObject is from being
 		# directly in the center of the screen on the x axis
 		def center_x_diff
@@ -315,28 +319,76 @@ module Engine
 			y = @@screen.height/2-@height/2
 			return y-@y
 		end
-		
+
 		# Centers along the y axis
 		def center_y
 			@y = @@screen.height/2-@height/2
 		end
-		
-		# Find distance between two objects (a^2 + b^2 = c^2)
-		def distance obj
-			a = obj.x-@x
-			b = obj.y-@y
-			c = Math.sqrt(a**2 + b**2)	
+
+		# Find the distance between two points (a^2 + b^2 = c^2)
+		def distance_between x1, y1, x2, y2
+			a = x2-x1
+			b = y2-y1
+			c = Math.sqrt(a**2 + b**2)
+		end
+
+		# Find the distance from obj
+		def distance_from obj
+			distance_between @x, @y, obj.x, obj.y
+		end
+
+		# Finds the angle between two points
+		def angle_between x1, y1, x2, y2
+			dx = x2-x1
+			dy = y2-y1
+			dx = 1 if dx == 0
+			angle = radians_to_degrees(Math.atan2(dy,dx))
+			# Gets the circle facing the correct way (i.e. 0 degrees is up)
+			# I'm sure there has to be a better way, but I don't know
+			# what it is, and this works
+			angle += 360 if angle < 0
+			angle -= 90
+			angle += 360 if angle < 0
+			return angle
+		end
+
+		# Finds the you're at in comparison the another object
+		def angle_from obj
+			return angle_between(obj.x, obj.y, @x, @y)
 		end
 		
+		# Returns the difference along the x- and y-axis if
+		# an object moved a the specified angle for the
+		# specified distance
+		def move_diff angle, distance
+			radians = degrees_to_radians(angle)
+			x = @x + distance * Math.cos(radians)
+			y = @y + distance * Math.sin(radians)
+			return [x-@x, y-@y]
+		end
+
+		# Move at the specified angle for the specified distance (in pixels)
+		def move angle, distance
+			diff = move_diff(angle, distance)
+			@x += diff[0]
+			@y += diff[1]
+		end
+
 		# Check if self is on screen
 		def on_screen?
 			# A ScapeGoat the size of the screen, used in GameObject#on_screen?
 			@@screen_goat ||= Engine::ScapeGoat.new(:width => @@screen.width, :height => @@screen.height)
 			@@game.collision_between(self, @@screen_goat)
 		end
-		
-		# Method called when @@game changes state
-		def state_change
+			
+		# Converts degrees to radians (assuming that up is 0 degrees,
+		# right is 90, down is 180, and left is 270)
+		def degrees_to_radians degrees
+			return (degrees-90) * (Math::PI/180)
+		end
+
+		def radians_to_degrees radians
+			return radians * (180/Math::PI)
 		end
 	end
 	
@@ -461,7 +513,7 @@ module Engine
 	
 	# A class used to display texts
 	class Text < Engine::Drawable
-		@@default_font = "FreeSans.ttf"
+		@@default_font = "media/FreeSans.ttf"
 		
 		# Creates a new Text object
 		#
@@ -588,6 +640,23 @@ module Engine
 				obj.send :instance_variable_set, :"@#{var}", hash[var]
 			end
 		end
+		
+		# Get's the current state of all keys on the keyboard in
+		# a nice, non-hackish way
+		#
+		# I retain the hope that this will one day be integrated
+		# into Rubygame itself
+		def self.get_key_state
+			hash = {}
+			key_state = SDL.GetKeyState
+			key_state.length.times do |i|
+				state = (key_state[i] != 0)
+				hash[Rubygame::Events._convert_key_symbol(i)] = state
+			end
+			hash.delete :unknown_key
+			return hash
+		end
+
 	end
 	
 	# A mix-in module for objects that can have events
@@ -654,51 +723,60 @@ module Engine
 		
 		# Respond while a key is pressed
 		def while_key_pressed key, &block
-			slave = Slave.new block
-			key_press(key) do |ev|
+			# The depth argument is to make the slave run before
+			# it's owner
+			slave = Slave.new block, @depth-0.1
+			ev1 = key_press(key) do |ev|
 				slave.active = true
 			end
-			key_release(key) do |ev|
+			ev2 = key_release(key) do |ev|
 				slave.active = false
 			end
-			# The following is a completely hack-ish way
-			# of getting the slave's @active right when
-			# state changes happen. We have to do it this
-			# way because Rubygame doesn't have a native
-			# get_key_state method or equivilent
 			def slave.key= key
 				@key = key
 			end
 			slave.key = key
 			def slave.state_change
-				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
-				@active = (key_down != 0)
+				@active = Util.get_key_state[@key]
 			end
+			slave.active = Util.get_key_state[key]
+			return [ev1, ev2, slave]
 		end
 		
 		# Respond while a key is released
 		def while_key_released key, &block
-			slave = Slave.new block
+			# The depth argument is to make the slave run before
+			# it's owner
+			slave = Slave.new block, @depth-0.1
 			slave.active = true
-			key_press(key) do |ev|
+			ev1 = key_press(key) do |ev|
 				slave.active = false
 			end
-			key_release(key) do |ev|
+			ev2 = key_release(key) do |ev|
 				slave.active = true
 			end
-			# The following is a completely hack-ish way
-			# of getting the slave's @active right when
-			# state changes happen. We have to do it this
-			# way because Rubygame doesn't have a native
-			# get_key_state method or equivilent
 			def slave.key= key
 				@key = key
 			end
 			slave.key = key
 			def slave.state_change
-				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
-				@active = (key_down == 0)
+				@active = !Util.get_key_state[@key]
 			end
+			slave.active = !Util.get_key_state[key]
+			return [ev1, ev2, slave]
+		end
+		
+		# Respond while a mouse button is pressed
+		def while_mouse_pressed button=:mouse_left, &block
+			slave = Slave.new block, @depth-0.1
+			slave.active = true
+			ev1 = mouse_press(button) do |ev|
+				slave.active = true
+			end
+			ev2 = mouse_release(button) do |ev|
+				slave.active = false
+			end
+			return [ev1, ev2, slave]
 		end
 		
 		# Respond to the mouse being pressed on an object
@@ -743,8 +821,16 @@ module Engine
 	
 		# Deletes a specified event
 		def delete_event ev
-			@@game.events.delete ev
-			@@game.current_state.events.delete ev
+			if ev.class == Array
+				@@game.events.delete ev[0]
+				@@game.events.delete ev[1]
+				@@game.current_state.events.delete ev[0]
+				@@game.current_state.events.delete ev[1]
+				ev[2].life = 0
+			elsif ev.class == Event
+				@@game.events.delete ev
+				@@game.current_state.events.delete ev
+			end
 		end
 		
 		# Gives EventOwner access to the Game
@@ -785,8 +871,8 @@ module Engine
 		# Used internally, probably of no use elsewhere
 		class Slave < Engine::GameObject
 			attr_accessor :active
-			def initialize code
-				super(:x => 0, :y => 0, :width => 0, :height => 0)
+			def initialize code, depth=0
+				super(:x => 0, :y => 0, :width => 0, :height => 0, :depth => depth)
 				@code = code
 				@active = false
 			end
