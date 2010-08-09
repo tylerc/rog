@@ -220,16 +220,10 @@ class Room < Drawable
 end
 
 class InGame < State
-	def initialize name, color
-		super()
-		@name = name
-		@color = color
-	end
-	
-	def setup
-		$id = safe_get "add_player/?r=#{@color[0]}&g=#{@color[1]}&b=#{@color[2]}&name=#{URI.escape(@name.gsub(' ', '+'))}"
+	def setup name, color
+		$id = safe_get "add_player/?r=#{color[0]}&g=#{color[1]}&b=#{color[2]}&name=#{URI.escape(name.gsub(' ', '+'))}"
 		room = Room.new
-		player = Player.new @name, @color, room
+		player = Player.new name, color, room
 		manager = PlayerManager.new player, room
 		key_press(:m) do
 			@@game.push_state(MapState.new(@@screen.convert,room.room[:num]))

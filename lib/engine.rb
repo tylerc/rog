@@ -183,7 +183,7 @@ module Engine
 				notify_of_state_change
 				@objs2 = []
 				@current_state = state
-				@current_state.setup
+				@current_state.setup(*@current_state._args)
 				notify_of_state_change
 			end
 		end
@@ -206,7 +206,7 @@ module Engine
 				notify_of_state_change
 				@states.push @current_state
 				@current_state = state
-				@current_state.setup
+				@current_state.setup(*@current_state._args)
 				notify_of_state_change
 			end
 		end
@@ -384,6 +384,12 @@ module Engine
 			@real_height = @height
 		end
 		
+		def simple_draw
+			@surface.blit @@screen, [@x, @y]
+			@real_width = @surface.width
+			@real_height = @surface.height
+		end
+		
 		def draw
 			if @angle == 0
 				@surface.rotozoom(@angle,@zoom,@aa).blit @@screen, [@x, @y]
@@ -468,14 +474,13 @@ module Engine
 		# * Font Size (:size)
 		# * Font file to use (must be ttf) (:font)
 		#
-		# Engine::Box inherits from Engine::Drawable 
+		# Engine::Text inherits from Engine::Drawable 
 		# check there to see more useful parameters...
 		def initialize settings={:text => "TEST STRING", :color => [255, 255, 255], :taa => true, :size => 20, :font => @@default_font, :aa => false}
 			s = 				{:text => "TEST STRING", :color => [255, 255, 255], :taa => true, :size => 20, :font => @@default_font, :aa => false}.merge! settings
 			@font = Rubygame::TTF.new s[:font], s[:size]
 			s[:width] = @font.size_text(s[:text])[0]
 			s[:height] = @font.size_text(s[:text])[1]
-			#s[:surface] = rerender_text#@font.render(s[:text], s[:taa], s[:color])
 			super s
 			
 			Util.hash_to_var(s, [:text, :color, :taa], self)
@@ -540,14 +545,17 @@ module Engine
 		attr_accessor :objs
 		# Background Color
 		attr_accessor :bg_color
+		# Arguments passed when State#initialized is called
+		attr_reader :_args
 		
 		# initializes the @events and @objs methods
 		#
 		# DO NOT OVERIDE THIS METHOD
-		def initialize
+		def initialize *args
 			@events = []
 			@objs = []
 			@bg_color = [0,0,0]
+			@_args = args
 		end
 		
 		# Gives state objects access to the game class
@@ -558,7 +566,11 @@ module Engine
 		
 		# Code that is run when a state takes the stage
 		# override this method in your own states
-		def setup
+		#
+		# Feel free to give this method parameters, they
+		# will be transferred from State.new to State#setup
+		# by the engine.
+		def setup *args
 		end
 		
 		# If you want your state to run some code every update
@@ -660,11 +672,7 @@ module Engine
 			slave.key = key
 			def slave.state_change
 				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
-				if key_down == 0
-					@active = false
-				elsif key_down == 1
-					@active = true
-				end
+				@active = (key_down != 0)
 			end
 		end
 		
@@ -689,11 +697,7 @@ module Engine
 			slave.key = key
 			def slave.state_change
 				key_down = SDL.GetKeyState[eval("Rubygame::K_#{@key.to_s.upcase}")]
-				if key_down == 0
-					@active = true
-				elsif key_down == 1
-					@active = false
-				end
+				@active = (key_down == 0)
 			end
 		end
 		

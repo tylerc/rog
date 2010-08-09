@@ -73,15 +73,9 @@ class Map < GameObject
 end
 
 class MapState < State
-	def initialize surface, room
-		super()
-		@surface = surface
-		@room = room
-	end
-	
-	def setup
-		Drawable.new :surface => @surface, :depth => -200
-		map = Map.new(eval(safe_get("map/?id=#{$id}")),@room)
+	def setup surface, room
+		Drawable.new :surface => surface, :depth => -200
+		map = Map.new(eval(safe_get("map/?id=#{$id}")),room)
 		map.center
 		backdrop = Box.new :x => map.x-10, :y => map.y-10, :width => map.width+20, :height => map.height+20, :depth => -199, :color => [255,0,0,100]
 		key = Box.new :y => 10, :width => 345, :height => 70, :color => [255,0,0,100], :depth => -198
