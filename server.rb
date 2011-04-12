@@ -3,7 +3,7 @@ require 'rubygems'
 require 'sinatra'
 require 'digest/sha1'
 
-require 'lib/dungeon'
+require './lib/dungeon'
 
 $salt = rand
 $ids = {}

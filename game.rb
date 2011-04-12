@@ -4,10 +4,10 @@ require 'rubygame'
 require 'httparty'
 require 'optparse'
 
-require 'lib/engine'
-require 'lib/map'
-require 'lib/setup'
-require 'lib/ingame'
+require './lib/engine'
+require './lib/map'
+require './lib/setup'
+require './lib/ingame'
 include Engine
 include Rubygame::Events
 
